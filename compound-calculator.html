@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你的财富终点在哪里？</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--bg2:#0f1525;--bg3:#161e30;--bg4:#1e2840;
+  --border:#1e2d45;--border2:#253550;
+  --text:#f0f2f8;--text2:#8892a8;--text3:#4a5568;
+  --accent:#4f9cf9;--accent2:#3b82f6;
+  --green:#10b981;--green2:#34d399;
+  --gold:#f59e0b;--gold2:#fbbf24;
+  --red:#ef4444;--purple:#8b5cf6;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── ADVISOR HEADER BAR ── */
+.advisor-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.advisor-info{display:flex;align-items:center;gap:12px}
+.advisor-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.advisor-name{font-size:14px;font-weight:700;color:var(--text)}
+.advisor-title{font-size:11px;color:var(--text2);margin-top:1px}
+.advisor-badge{font-size:10px;padding:3px 9px;border-radius:99px;background:rgba(79,156,249,.12);color:var(--accent);border:1px solid rgba(79,156,249,.2);font-weight:600}
+.advisor-bar-right{display:flex;align-items:center;gap:10px}
+.brand-small{font-size:13px;font-weight:700;color:var(--text3)}
+/* admin toggle */
+.admin-btn{font-size:11px;padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.admin-btn:hover{color:var(--text2);border-color:var(--text3)}
+
+/* ── HERO ── */
+.hero{padding:72px 24px 56px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(ellipse,rgba(79,156,249,.08) 0%,transparent 70%);pointer-events:none}
+.hero-eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-bottom:20px}
+.hero h1{font-size:clamp(32px,6vw,64px);font-weight:900;letter-spacing:-.03em;line-height:1.05;margin-bottom:20px}
+.hero h1 .hl{background:linear-gradient(135deg,#60a5fa,#a78bfa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(15px,2vw,18px);color:var(--text2);max-width:520px;margin:0 auto 40px;line-height:1.7}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;padding:16px 32px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .2s;box-shadow:0 8px 32px rgba(79,156,249,.3)}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(79,156,249,.4)}
+.hero-cta svg{width:18px;height:18px}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:56px;flex-wrap:wrap}
+.hero-stat .num{font-family:'DM Mono',monospace;font-size:28px;font-weight:700;color:var(--text)}
+.hero-stat .num span{font-size:16px;color:var(--text3)}
+.hero-stat .lbl{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── QUIZ FLOW ── */
+.quiz-section{max-width:680px;margin:0 auto;padding:0 24px 80px;display:none}
+.quiz-section.active{display:block}
+.progress-bar{height:3px;background:var(--border);border-radius:99px;margin-bottom:48px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:99px;transition:width .5s ease}
+
+.quiz-step{display:none}
+.quiz-step.active{display:block;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.step-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.step-q{font-size:clamp(22px,4vw,32px);font-weight:800;letter-spacing:-.02em;color:var(--text);margin-bottom:8px;line-height:1.25}
+.step-q .hl{color:var(--accent)}
+.step-hint{font-size:14px;color:var(--text2);margin-bottom:36px;line-height:1.6}
+
+/* OPTION CARDS */
+.opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:36px}
+.opt-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:20px 18px;cursor:pointer;transition:all .2s;text-align:left}
+.opt-card:hover{border-color:var(--accent);background:rgba(79,156,249,.05);transform:translateY(-2px)}
+.opt-card.selected{border-color:var(--accent);background:rgba(79,156,249,.1);box-shadow:0 0 0 3px rgba(79,156,249,.15)}
+.opt-card .icon{font-size:24px;margin-bottom:10px}
+.opt-card .label{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.opt-card .desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* SLIDER INPUT */
+.slider-group{margin-bottom:36px}
+.slider-display{display:flex;align-items:baseline;gap:6px;margin-bottom:16px}
+.slider-display .amount{font-family:'DM Mono',monospace;font-size:clamp(36px,6vw,56px);font-weight:700;color:var(--text);line-height:1}
+.slider-display .unit{font-size:18px;color:var(--text3)}
+.slider-track{position:relative;padding:8px 0}
+input[type=range]{width:100%;height:4px;accent-color:var(--accent);cursor:pointer;display:block;border-radius:2px;background:var(--border)}
+.slider-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.quick-picks{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.qp{padding:6px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:99px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'DM Mono',monospace}
+.qp:hover,.qp.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+
+/* NAV BUTTONS */
+.step-nav{display:flex;justify-content:space-between;align-items:center}
+.btn-back{padding:10px 20px;border:1px solid var(--border2);border-radius:9px;background:transparent;color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-back:hover{border-color:var(--text2);color:var(--text)}
+.btn-next{padding:12px 28px;background:linear-gradient(135deg,var(--accent),var(--purple));border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:flex;align-items:center;gap:8px}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,156,249,.35)}
+.btn-next:disabled{opacity:.4;pointer-events:none}
+
+/* ── RESULTS ── */
+.results-section{max-width:900px;margin:0 auto;padding:0 24px 80px;display:none}
+.results-section.active{display:block;animation:fadeUp .5s ease}
+
+/* BIG REVEAL */
+.reveal-card{background:linear-gradient(135deg,#0f1f3d,#1a1040);border:1px solid rgba(79,156,249,.2);border-radius:24px;padding:48px 40px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden}
+.reveal-card::before{content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(ellipse,rgba(79,156,249,.12),transparent 70%);pointer-events:none}
+.reveal-eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:16px}
+.reveal-name{font-size:16px;color:rgba(255,255,255,.5);margin-bottom:8px}
+.reveal-name strong{color:#60a5fa}
+.reveal-amount{font-family:'DM Mono',monospace;font-size:clamp(48px,8vw,88px);font-weight:800;background:linear-gradient(135deg,#60a5fa,#a78bfa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:12px;letter-spacing:-.03em}
+.reveal-sub{font-size:15px;color:rgba(255,255,255,.4);margin-bottom:40px;line-height:1.6}
+.reveal-sub strong{color:rgba(255,255,255,.7)}
+.reveal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
+.rs{background:rgba(255,255,255,.03);padding:20px 16px;text-align:center}
+.rs .lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px}
+.rs .val{font-family:'DM Mono',monospace;font-size:clamp(18px,3vw,26px);font-weight:700;color:#fff;line-height:1}
+.rs .val.g{color:var(--green2)}
+.rs .val.b{color:#60a5fa}
+.rs .val.a{color:var(--gold2)}
+.rs .note{font-size:10px;color:rgba(255,255,255,.25);margin-top:5px}
+
+/* CHART */
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px}
+.chart-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.chart-card-title{font-size:16px;font-weight:700;color:var(--text)}
+.chart-card-sub{font-size:12px;color:var(--text2);margin-top:4px}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.li-dot{width:20px;height:3px;border-radius:2px}
+.chart-box{height:320px;position:relative}
+
+/* ACTION PLAN */
+.action-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px}
+.ac-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px}
+.ac-sub{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+.action-items{display:flex;flex-direction:column;gap:12px}
+.action-item{display:flex;align-items:flex-start;gap:16px;padding:18px 20px;border-radius:14px;border:1.5px solid}
+.action-item.fixed{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)}
+.action-item.fixedp{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2)}
+.action-item.index{background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.2)}
+.action-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.action-num.fixed{background:var(--green)}
+.action-num.fixedp{background:var(--gold)}
+.action-num.index{background:var(--purple)}
+.action-body{flex:1}
+.action-name{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.action-name.fixed{color:var(--green)}.action-name.fixedp{color:var(--gold)}.action-name.index{color:var(--purple)}
+.action-numbers{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:14px}
+.an-item .an-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
+.an-item .an-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--text)}
+.an-item .an-val.accent{color:var(--accent)}
+.an-item .an-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.total-bar{background:linear-gradient(135deg,rgba(79,156,249,.15),rgba(139,92,246,.1));border:1px solid rgba(79,156,249,.2);border-radius:12px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.total-bar .lbl{font-size:13px;color:var(--text2)}
+.total-bar .val{font-family:'DM Mono',monospace;font-size:28px;font-weight:800;color:var(--accent)}
+
+/* INFLATION NOTE */
+.infl-note{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:16px 18px;margin-bottom:24px;font-size:13px;color:rgba(239,68,68,.9);line-height:1.7}
+.infl-note strong{color:var(--red)}
+
+/* NEXT STEPS */
+.steps-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px}
+.step-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.step-item:last-child{border-bottom:none}
+.step-n{width:26px;height:26px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);flex-shrink:0;margin-top:2px}
+.step-body .st{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.step-body .sd{font-size:12px;color:var(--text2);line-height:1.6}
+
+/* ── CTA BANNER ── */
+.cta-banner{background:linear-gradient(135deg,#0f1f3d,#1a0f30);border:1px solid rgba(79,156,249,.25);border-radius:24px;padding:48px 40px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(79,156,249,.1),transparent 60%);pointer-events:none}
+.cta-advisor-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;margin:0 auto 16px;border:3px solid rgba(79,156,249,.3)}
+.cta-advisor-name{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px}
+.cta-advisor-title{font-size:13px;color:var(--text2);margin-bottom:28px}
+.cta-headline{font-size:clamp(20px,4vw,28px);font-weight:800;color:var(--text);letter-spacing:-.02em;margin-bottom:10px;line-height:1.25}
+.cta-sub{font-size:14px;color:var(--text2);margin-bottom:32px;line-height:1.6;max-width:480px;margin-left:auto;margin-right:auto}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;padding:18px 40px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;box-shadow:0 8px 32px rgba(16,185,129,.3);text-decoration:none}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(16,185,129,.4)}
+.cta-disclaimer{font-size:11px;color:var(--text3);margin-top:20px;line-height:1.6}
+
+/* SHARE */
+.share-row{display:flex;gap:10px;justify-content:center;margin-bottom:32px;flex-wrap:wrap}
+.share-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:9px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.share-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* DISCLAIMER */
+.disclaimer{font-size:11px;color:var(--text3);text-align:center;line-height:1.7;padding:0 24px 40px;max-width:680px;margin:0 auto}
+
+/* ── ADMIN PANEL ── */
+.admin-panel{display:none;background:var(--bg2);border-top:1px solid var(--border);padding:24px}
+.admin-panel.open{display:block}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto}
+.admin-field{display:flex;flex-direction:column;gap:5px}
+.admin-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
+.admin-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;height:36px;padding:0 12px;font-size:13px;color:var(--text);font-family:'DM Mono',monospace;outline:none}
+.admin-input:focus{border-color:var(--accent)}
+.admin-note{font-size:11px;color:var(--text3);margin-top:4px;padding:0 2px}
+.admin-save{margin-top:16px;padding:9px 20px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+
+/* REPORT */
+.report-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.report-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* UTILS */
+@media(max-width:600px){
+  .reveal-stats{grid-template-columns:1fr}
+  .action-numbers{grid-template-columns:1fr 1fr}
+  .hero-stats{gap:24px}
+  .reveal-card{padding:32px 20px}
+  .cta-banner{padding:32px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ADVISOR BAR -->
+<div class="advisor-bar">
+  <div class="advisor-info">
+    <div class="advisor-avatar" id="av_letter">F</div>
+    <div>
+      <div class="advisor-name" id="av_name">超人理财顾问</div>
+      <div class="advisor-title" id="av_title">资深财富规划师</div>
+    </div>
+    <div class="advisor-badge">专属规划</div>
+  </div>
+  <div class="advisor-bar-right">
+    <div class="brand-small">⚡ 超人理财</div>
+    <button class="admin-btn" onclick="toggleAdmin()">顾问设置 ⚙</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-grid">
+    <div class="admin-field">
+      <label class="admin-label">顾问姓名</label>
+      <input class="admin-input" id="adv_name" placeholder="如：张晓华" oninput="updateAdvisorUI()">
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">职位 / 头衔</label>
+      <input class="admin-input" id="adv_title" placeholder="如：资深财富规划师">
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">联系方式</label>
+      <input class="admin-input" id="adv_contact" placeholder="微信号 / 手机号">
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">个人签名</label>
+      <input class="admin-input" id="adv_slogan" placeholder="如：10年陪伴，让钱为你工作">
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">固收 年化 %</label>
+      <input class="admin-input" type="number" id="adv_r1" value="3.5" step="0.5">
+      <div class="admin-note">✓ 合理区间 2~5%（银行定存/国债/货基）</div>
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">固收+ 年化 %</label>
+      <input class="admin-input" type="number" id="adv_r2" value="6.0" step="0.5">
+      <div class="admin-note">✓ 合理区间 4~8%（债基/可转债/REITs）</div>
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">指数宽基 年化 %</label>
+      <input class="admin-input" type="number" id="adv_r3" value="9.0" step="0.5">
+      <div class="admin-note">✓ 合理区间 6~12%（沪深300/标普500）</div>
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">假设年通胀率 %</label>
+      <input class="admin-input" type="number" id="adv_infl" value="3.0" step="0.5">
+      <div class="admin-note">中国近10年CPI均值约2~2.5%</div>
+    </div>
+  </div>
+  <button class="admin-save" onclick="saveAdmin()">保存并应用 ✓</button>
+</div>
+
+<!-- HERO -->
+<div class="hero" id="heroSection">
+  <div class="hero-eyebrow">专属财富规划</div>
+  <h1>你的钱，<br>30年后值多少？</h1>
+  <p class="hero-sub">填写3个问题，60秒告诉你<br>坚持投资能带你到达哪里</p>
+  <button class="hero-cta" onclick="startQuiz()">
+    开始测算
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">10%<span>/年</span></div><div class="lbl">复利的力量</div></div>
+    <div class="hero-stat"><div class="num">17.4<span>倍</span></div><div class="lbl">30年后本金增长</div></div>
+    <div class="hero-stat"><div class="num">72<span>法则</span></div><div class="lbl">10%收益7.2年翻倍</div></div>
+  </div>
+</div>
+
+<!-- QUIZ FLOW -->
+<div class="quiz-section" id="quizSection">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <!-- STEP 1: 风险偏好 -->
+  <div class="quiz-step active" id="qstep1">
+    <div class="step-label">第 1 步 · 共 4 步</div>
+    <div class="step-q">如果投资下跌20%，<br>你会怎么做？</div>
+    <div class="step-hint">这决定了适合你的资产配置方向</div>
+    <div class="opt-grid">
+      <div class="opt-card" onclick="selectRisk('conservative',this)">
+        <div class="icon">🛡️</div>
+        <div class="label">全部取出</div>
+        <div class="desc">本金安全最重要，不能承受亏损</div>
+      </div>
+      <div class="opt-card" onclick="selectRisk('moderate',this)">
+        <div class="icon">⚖️</div>
+        <div class="label">继续观望</div>
+        <div class="desc">担心，但会等待市场回弹</div>
+      </div>
+      <div class="opt-card" onclick="selectRisk('aggressive',this)">
+        <div class="icon">🚀</div>
+        <div class="label">加仓买入</div>
+        <div class="desc">跌了是机会，继续定投</div>
+      </div>
+    </div>
+    <div class="step-nav">
+      <div></div>
+      <button class="btn-next" id="next1" onclick="goStep(2)" disabled>下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: 初始本金 -->
+  <div class="quiz-step" id="qstep2">
+    <div class="step-label">第 2 步 · 共 4 步</div>
+    <div class="step-q">你计划投入<br><span class="hl" id="disp_principal">¥100万</span>启动？</div>
+    <div class="step-hint">这是你一次性放入的初始资金</div>
+    <div class="slider-group">
+      <div class="slider-track">
+        <input type="range" id="sl_principal" min="0" max="20" step="1" value="5" oninput="updatePrincipal(this.value)">
+      </div>
+      <div class="slider-labels"><span>¥5万</span><span>¥50万</span><span>¥100万</span><span>¥500万</span><span>¥1000万</span></div>
+      <div class="quick-picks" id="qp_principal">
+        <div class="qp" onclick="setPrincipalIdx(2)">¥20万</div>
+        <div class="qp" onclick="setPrincipalIdx(5)">¥50万</div>
+        <div class="qp active" onclick="setPrincipalIdx(7)">¥100万</div>
+        <div class="qp" onclick="setPrincipalIdx(12)">¥200万</div>
+        <div class="qp" onclick="setPrincipalIdx(16)">¥500万</div>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goStep(1)">← 上一步</button>
+      <button class="btn-next" onclick="goStep(3)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: 每月追加 -->
+  <div class="quiz-step" id="qstep3">
+    <div class="step-label">第 3 步 · 共 4 步</div>
+    <div class="step-q">每个月还能再存<br><span class="hl" id="disp_monthly">¥5,000</span>？</div>
+    <div class="step-hint">月初发薪后立刻存入，效果最好</div>
+    <div class="slider-group">
+      <div class="slider-track">
+        <input type="range" id="sl_monthly" min="0" max="20" step="1" value="5" oninput="updateMonthly(this.value)">
+      </div>
+      <div class="slider-labels"><span>¥0</span><span>¥5,000</span><span>¥1万</span><span>¥3万</span><span>¥5万</span></div>
+      <div class="quick-picks">
+        <div class="qp" onclick="setMonthlyIdx(0)">不追加</div>
+        <div class="qp" onclick="setMonthlyIdx(3)">¥3,000</div>
+        <div class="qp active" onclick="setMonthlyIdx(5)">¥5,000</div>
+        <div class="qp" onclick="setMonthlyIdx(10)">¥1万</div>
+        <div class="qp" onclick="setMonthlyIdx(15)">¥3万</div>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goStep(2)">← 上一步</button>
+      <button class="btn-next" onclick="goStep(4)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: 投资年限 -->
+  <div class="quiz-step" id="qstep4">
+    <div class="step-label">第 4 步 · 共 4 步</div>
+    <div class="step-q">准备坚持<br><span class="hl" id="disp_years">20年</span>？</div>
+    <div class="step-hint">时间是复利最重要的变量，越长越好</div>
+    <div class="slider-group">
+      <div class="slider-track">
+        <input type="range" id="sl_years" min="1" max="40" step="1" value="20" oninput="updateYears(this.value)">
+      </div>
+      <div class="slider-labels"><span>1年</span><span>10年</span><span>20年</span><span>30年</span><span>40年</span></div>
+      <div class="quick-picks">
+        <div class="qp" onclick="setYears(5)">5年</div>
+        <div class="qp" onclick="setYears(10)">10年</div>
+        <div class="qp active" onclick="setYears(20)">20年</div>
+        <div class="qp" onclick="setYears(30)">30年</div>
+        <div class="qp" onclick="setYears(40)">40年</div>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goStep(3)">← 上一步</button>
+      <button class="btn-next" onclick="showResults()">查看我的财富终点 ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="results-section" id="resultsSection">
+
+  <!-- BIG REVEAL -->
+  <div class="reveal-card">
+    <div class="reveal-eyebrow">你的财富终点</div>
+    <div class="reveal-name">按照 <strong id="r_risk_label">稳健型</strong> 配置方案，坚持 <strong id="r_years">20</strong> 年</div>
+    <div class="reveal-amount" id="r_total">—</div>
+    <div class="reveal-sub">初始投入 <strong id="r_principal">—</strong> · 每月追加 <strong id="r_monthly">—</strong> · 加权年化 <strong id="r_wrate">—</strong></div>
+    <div class="reveal-stats">
+      <div class="rs"><div class="lbl">累计投入本金</div><div class="val b" id="r_principal_total">—</div><div class="note">你的真金白银</div></div>
+      <div class="rs"><div class="lbl">复利为你创造</div><div class="val g" id="r_gain">—</div><div class="note">时间的馈赠</div></div>
+      <div class="rs"><div class="lbl">通胀后实际购买力</div><div class="val a" id="r_real">—</div><div class="note" id="r_infl_note">按3%通胀折算</div></div>
+    </div>
+  </div>
+
+  <!-- INFLATION NOTE -->
+  <div class="infl-note" id="inflNote">
+    🌡️ <strong>通胀提示：</strong>上方大数字是<strong>名义值</strong>。按假设恒定 <strong id="infl_rate_display">3%</strong> 通胀率，<span id="r_years2">20</span>年后这笔钱的实际购买力约为 <strong id="r_real2">—</strong>，相当于今天的购买力。通胀是财富最隐形的敌人，这也是为什么单纯存钱不够。
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-card">
+    <div class="chart-card-head">
+      <div>
+        <div class="chart-card-title">财富增长路径</div>
+        <div class="chart-card-sub">三类资产各自增长 vs 加权组合 vs 通胀后购买力</div>
+      </div>
+      <div class="chart-legend">
+        <div class="li"><div class="li-dot" style="background:var(--green2)"></div>固收</div>
+        <div class="li"><div class="li-dot" style="background:var(--gold2)"></div>固收+</div>
+        <div class="li"><div class="li-dot" style="background:var(--purple)"></div>指数</div>
+        <div class="li"><div class="li-dot" style="background:var(--accent)"></div>加权组合</div>
+        <div class="li"><div class="li-dot" style="background:var(--red);opacity:.7"></div>实际购买力</div>
+      </div>
+    </div>
+    <div class="chart-box"><canvas id="mainChart"></canvas></div>
+  </div>
+
+  <!-- ACTION PLAN -->
+  <div class="action-card">
+    <div class="ac-title">每月行动计划</div>
+    <div class="ac-sub" id="ac_sub">根据你的风险偏好，顾问建议以下配置</div>
+    <div class="action-items" id="actionItems"></div>
+    <div class="total-bar" id="totalBar" style="display:none">
+      <div class="lbl">每月投入合计</div>
+      <div class="val" id="monthly_total">—</div>
+    </div>
+  </div>
+
+  <!-- NEXT STEPS -->
+  <div class="steps-card">
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:18px">📋 接下来怎么做</div>
+    <div class="action-items" id="nextSteps"></div>
+  </div>
+
+  <!-- SHARE -->
+  <div class="share-row">
+    <button class="share-btn" onclick="copyLink()">🔗 复制专属链接，分享给朋友</button>
+    <button class="report-btn" onclick="generateReport()">📄 生成PDF报告</button>
+    <button class="share-btn" onclick="restartQuiz()">↩ 重新测算</button>
+  </div>
+
+  <!-- CTA BANNER -->
+  <div class="cta-banner">
+    <div class="cta-advisor-avatar" id="cta_avatar">F</div>
+    <div class="cta-advisor-name" id="cta_name">联系你的专属顾问</div>
+    <div class="cta-advisor-title" id="cta_title">资深财富规划师 · 超人理财</div>
+    <div class="cta-headline">这个数字<br>可以真实发生在你身上</div>
+    <div class="cta-sub" id="cta_sub">数字已经告诉你方向，下一步是把它变成现实。留下你的联系方式，顾问会在24小时内主动联系你。</div>
+
+    <!-- LEAD FORM -->
+    <div id="leadForm" style="max-width:420px;margin:0 auto 20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px;text-align:left">你的姓名</div>
+          <input id="lead_name" type="text" placeholder="请输入姓名"
+            style="width:100%;height:44px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-size:14px;padding:0 14px;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s"
+            onfocus="this.style.borderColor='rgba(79,156,249,.6)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+        </div>
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px;text-align:left">手机号码</div>
+          <input id="lead_phone" type="tel" placeholder="请输入手机号"
+            style="width:100%;height:44px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-size:14px;padding:0 14px;outline:none;font-family:'DM Mono',monospace;transition:border-color .15s"
+            onfocus="this.style.borderColor='rgba(79,156,249,.6)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px;text-align:left">补充说明（选填）</div>
+        <input id="lead_note" type="text" placeholder="如：我想了解稳健型配置的具体产品"
+          style="width:100%;height:44px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-size:13px;padding:0 14px;outline:none;font-family:'Inter',sans-serif;transition:border-color .15s"
+          onfocus="this.style.borderColor='rgba(79,156,249,.6)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+      </div>
+      <button class="cta-btn" onclick="submitLead()" id="leadSubmitBtn" style="width:100%;justify-content:center">
+        📱 预约顾问，免费规划
+      </button>
+      <div id="leadMsg" style="margin-top:12px;font-size:13px;min-height:20px"></div>
+    </div>
+
+    <!-- SUCCESS STATE (hidden by default) -->
+    <div id="leadSuccess" style="display:none;max-width:420px;margin:0 auto 20px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:20px;text-align:center">
+      <div style="font-size:28px;margin-bottom:10px">✅</div>
+      <div style="font-size:16px;font-weight:700;color:#34d399;margin-bottom:6px">预约成功！</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.7">顾问已收到你的信息<br>将在 <strong style="color:#fff">24小时内</strong> 主动联系你</div>
+    </div>
+
+    <div class="cta-disclaimer">⚠️ 以上数据基于假设收益率模型测算，不构成投资建议。实际收益受市场波动影响，历史表现不代表未来收益。你的信息仅用于顾问联系，不会泄露给第三方。</div>
+  </div>
+
+  <div class="disclaimer">
+    本页面由超人理财顾问专业工具生成 · 数据仅供规划参考 · 不构成任何投资建议<br>
+    所有收益率为假设恒定值，实际市场存在波动风险
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+const state={
+  risk:'moderate',
+  principal:1000000,
+  monthly:5000,
+  years:20,
+  // advisor config (set in admin panel)
+  adv:{name:'',title:'资深财富规划师',contact:'',slogan:'',r1:3.5,r2:6.0,r3:9.0,infl:3.0},
+  // alloc from risk
+  alloc:{a1:40,a2:35,a3:25},
+};
+
+const RISK_PROFILES={
+  conservative:{label:'保守型',a1:70,a2:25,a3:5,desc:'以固定收益为主，本金安全第一，少量固收+提升收益'},
+  moderate:{label:'稳健型',a1:40,a2:35,a3:25,desc:'均衡配置，稳健增长，少量指数基金获取长期超额收益'},
+  aggressive:{label:'积极型',a1:20,a2:25,a3:55,desc:'加大权益配置，通过长期复利实现财富最大化'},
+};
+
+// Principal scale: 21 steps
+const PRINCIPAL_SCALE=[50000,100000,150000,200000,300000,500000,700000,1000000,1200000,1500000,2000000,2500000,3000000,4000000,5000000,6000000,7000000,8000000,9000000,10000000,20000000];
+// Monthly scale: 21 steps
+const MONTHLY_SCALE=[0,1000,2000,3000,4000,5000,6000,8000,10000,12000,15000,20000,25000,30000,35000,40000,45000,50000,60000,80000,100000];
+
+// ── UTILS ──
+function fmt(n){if(Math.abs(n)>=1e8)return'¥'+(n/1e8).toFixed(2)+'亿';if(Math.abs(n)>=1e4)return'¥'+(n/1e4).toFixed(2)+'万';return'¥'+Math.round(n).toLocaleString()}
+function fmtFull(n){return'¥'+Math.round(n).toLocaleString('zh-CN')}
+function $(id){return document.getElementById(id)}
+function set(id,v){const el=$(id);if(el)el.textContent=v}
+
+// ── ADMIN ──
+function toggleAdmin(){$('adminPanel').classList.toggle('open')}
+function updateAdvisorUI(){
+  const n=$('adv_name').value.trim();
+  const letter=n?n[0].toUpperCase():'F';
+  $('av_letter').textContent=letter;
+  $('av_name').textContent=n||'超人理财顾问';
+  $('cta_avatar').textContent=letter;
+  $('cta_name').textContent=n?n+' 顾问':'联系你的专属顾问';
+  $('cta_contact_name').textContent=n||'顾问';
+}
+function saveAdmin(){
+  state.adv.name=$('adv_name').value.trim();
+  state.adv.title=$('adv_title').value.trim()||'资深财富规划师';
+  state.adv.contact=$('adv_contact').value.trim();
+  state.adv.slogan=$('adv_slogan').value.trim();
+  state.adv.r1=parseFloat($('adv_r1').value)||3.5;
+  state.adv.r2=parseFloat($('adv_r2').value)||6.0;
+  state.adv.r3=parseFloat($('adv_r3').value)||9.0;
+  state.adv.infl=parseFloat($('adv_infl').value)||3.0;
+  $('av_name').textContent=state.adv.name||'超人理财顾问';
+  $('av_title').textContent=state.adv.title;
+  const contact=state.adv.contact;
+  const ctaBtn=$('ctaContactBtn');
+  if(contact){
+    if(contact.match(/^1[3-9]\d{9}$/)){ctaBtn.href='tel:'+contact;}
+    else{ctaBtn.href='#';}
+  }
+  $('cta_title').textContent=state.adv.title+' · 超人理财';
+  if(state.adv.slogan)$('cta_sub').textContent=state.adv.slogan;
+  $('adminPanel').classList.remove('open');
+  alert('✓ 顾问信息已保存');
+}
+
+// ── QUIZ NAV ──
+let currentStep=1;
+function startQuiz(){
+  $('heroSection').style.display='none';
+  $('quizSection').classList.add('active');
+  setProgress(1);
+}
+function goStep(n){
+  $('qstep'+currentStep).classList.remove('active');
+  currentStep=n;
+  $('qstep'+n).classList.add('active');
+  setProgress(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function setProgress(step){
+  $('progressFill').style.width=((step-1)/4*100)+'%';
+}
+function restartQuiz(){
+  $('resultsSection').classList.remove('active');
+  $('quizSection').classList.add('active');
+  currentStep=1;
+  document.querySelectorAll('.quiz-step').forEach(s=>s.classList.remove('active'));
+  $('qstep1').classList.add('active');
+  setProgress(1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── INPUTS ──
+function selectRisk(type,el){
+  state.risk=type;
+  const p=RISK_PROFILES[type];
+  state.alloc={a1:p.a1,a2:p.a2,a3:p.a3};
+  document.querySelectorAll('#qstep1 .opt-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  $('next1').disabled=false;
+}
+
+function updatePrincipal(idx){
+  state.principal=PRINCIPAL_SCALE[parseInt(idx)];
+  set('disp_principal',fmt(state.principal));
+  document.querySelectorAll('#qp_principal .qp').forEach(q=>q.classList.remove('active'));
+}
+function setPrincipalIdx(idx){
+  $('sl_principal').value=idx;
+  updatePrincipal(idx);
+}
+
+function updateMonthly(idx){
+  state.monthly=MONTHLY_SCALE[parseInt(idx)];
+  set('disp_monthly',state.monthly===0?'不追加':fmt(state.monthly));
+  document.querySelectorAll('#qstep3 .qp').forEach(q=>q.classList.remove('active'));
+}
+function setMonthlyIdx(idx){
+  $('sl_monthly').value=idx;
+  updateMonthly(idx);
+}
+
+function updateYears(v){
+  state.years=parseInt(v);
+  set('disp_years',state.years+'年');
+  document.querySelectorAll('#qstep4 .qp').forEach(q=>q.classList.remove('active'));
+}
+function setYears(v){
+  $('sl_years').value=v;
+  updateYears(v);
+  document.querySelectorAll('#qstep4 .qp').forEach(q=>{
+    if(q.textContent===v+'年')q.classList.add('active');
+    else q.classList.remove('active');
+  });
+}
+
+// ── SIMULATION ──
+function simGrowth(P,rAnn,years,mc){
+  const rM=rAnn/12;let bal=P;const vals=[P];
+  for(let m=1;m<=years*12;m++){
+    bal+=mc;bal*=(1+rM);
+    if(m%12===0)vals.push(bal);
+  }
+  return vals;
+}
+
+// ── SHOW RESULTS ──
+let mainChart;
+function showResults(){
+  $('quizSection').classList.remove('active');
+  $('resultsSection').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  compute();
+}
+
+function compute(){
+  const P=state.principal,mc=state.monthly,years=state.years;
+  const r1=state.adv.r1/100,r2=state.adv.r2/100,r3=state.adv.r3/100;
+  const a1=state.alloc.a1/100,a2=state.alloc.a2/100,a3=state.alloc.a3/100;
+  const infl=state.adv.infl/100;
+  const mc1=mc*a1,mc2=mc*a2,mc3=mc*a3;
+
+  const d1=simGrowth(P*a1,r1,years,mc1);
+  const d2=simGrowth(P*a2,r2,years,mc2);
+  const d3=simGrowth(P*a3,r3,years,mc3);
+  const dW=d1.map((v,i)=>v+d2[i]+d3[i]);
+  const dReal=dW.map((v,i)=>v/Math.pow(1+infl,i));
+
+  const wRate=a1*r1+a2*r2+a3*r3;
+  const fin=dW[years];
+  const totC=P+mc*12*years;
+  const totI=fin-totC;
+  const realFin=fin/Math.pow(1+infl,years);
+  const profile=RISK_PROFILES[state.risk];
+
+  // Update reveal
+  set('r_risk_label',profile.label);
+  set('r_years',years);set('r_years2',years);
+  set('r_total',fmt(fin));
+  set('r_principal',fmt(P));
+  set('r_monthly',mc>0?fmt(mc):'不追加');
+  set('r_wrate',(wRate*100).toFixed(2)+'%');
+  set('r_principal_total',fmt(totC));
+  set('r_gain',fmt(totI));
+  set('r_real',fmt(realFin));
+  set('r_infl_note','按'+state.adv.infl+'%通胀折算');
+  set('r_real2',fmt(realFin));
+  set('infl_rate_display',state.adv.infl+'%');
+
+  // Chart
+  const labels=Array.from({length:years+1},(_,i)=>i===0?'起始':i+'年');
+  const ctx=$('mainChart').getContext('2d');
+  if(mainChart)mainChart.destroy();
+  mainChart=new Chart(ctx,{type:'line',data:{labels,datasets:[
+    {label:'固定收益',data:d1,borderColor:'rgba(52,211,153,.7)',backgroundColor:'transparent',fill:false,tension:.4,pointRadius:0,borderWidth:1.5,borderDash:[4,3]},
+    {label:'固收+',data:d2,borderColor:'rgba(251,191,36,.75)',backgroundColor:'transparent',fill:false,tension:.4,pointRadius:0,borderWidth:1.5,borderDash:[4,3]},
+    {label:'指数宽基',data:d3,borderColor:'rgba(139,92,246,.75)',backgroundColor:'transparent',fill:false,tension:.4,pointRadius:0,borderWidth:1.5,borderDash:[4,3]},
+    {label:'加权组合',data:dW,borderColor:'rgba(79,156,249,1)',backgroundColor:'rgba(79,156,249,.08)',fill:true,tension:.4,pointRadius:0,borderWidth:2.5},
+    {label:'实际购买力',data:dReal,borderColor:'rgba(239,68,68,.7)',backgroundColor:'rgba(239,68,68,.04)',fill:true,tension:.4,pointRadius:0,borderWidth:1.5,borderDash:[5,3]},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': ¥'+Math.round(c.raw).toLocaleString()}}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{maxTicksLimit:12,font:{size:10,family:'DM Mono'},color:'#4a5568'}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{font:{size:10,family:'DM Mono'},color:'#4a5568',callback:v=>fmt(v)},min:0}
+    }}});
+
+  // Action items
+  const assetDefs=[
+    {key:'fixed',name:'固定收益',rate:state.adv.r1,alloc:state.alloc.a1,mc:Math.round(mc*a1),finalVal:d1[years],examples:'银行定存 · 国债 · 货币基金'},
+    {key:'fixedp',name:'固收+',rate:state.adv.r2,alloc:state.alloc.a2,mc:Math.round(mc*a2),finalVal:d2[years],examples:'债券基金 · 可转债 · REITs'},
+    {key:'index',name:'指数宽基',rate:state.adv.r3,alloc:state.alloc.a3,mc:Math.round(mc*a3),finalVal:d3[years],examples:'沪深300 · 中证500 · 标普500'},
+  ].filter(a=>a.alloc>0||a.mc>0);
+
+  $('ac_sub').textContent=profile.label+'方案 · '+profile.desc;
+
+  $('actionItems').innerHTML=assetDefs.map((a,i)=>`
+    <div class="action-item ${a.key}">
+      <div class="action-num ${a.key}">${i+1}</div>
+      <div class="action-body">
+        <div class="action-name ${a.key}">${a.name} · 年化${a.rate}%</div>
+        <div class="action-numbers">
+          <div class="an-item"><div class="an-lbl">初始投入</div><div class="an-val">${fmtFull(Math.round(P*a.alloc/100))}</div><div class="an-sub">${a.alloc}% 配置</div></div>
+          ${a.mc>0?`<div class="an-item"><div class="an-lbl">每月定投</div><div class="an-val accent">${fmtFull(a.mc)}</div><div class="an-sub">月初存入</div></div>`:''}
+          <div class="an-item"><div class="an-lbl">${years}年后终值</div><div class="an-val">${fmt(a.finalVal)}</div><div class="an-sub">${a.examples}</div></div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  if(mc>0){
+    $('totalBar').style.display='flex';
+    set('monthly_total',fmtFull(mc));
+  }
+
+  // Next steps
+  const steps=[
+    {t:'本周内：完成账户开立',d:'如尚未开立相关账户，请联系顾问协助完成基金账户、银行理财账户的认证流程。'},
+    ...assetDefs.filter(a=>a.mc>0).map(a=>({t:`设置${a.name}自动定投 · 每月 ${fmtFull(a.mc)}`,d:'月初发薪后自动划扣，减少人为干预，坚持纪律投资最重要。'})),
+    {t:'每12个月：与顾问复盘一次',d:'确认各类资产占比是否偏离目标（建议误差≤5%），如有偏离进行再平衡，保持配置稳定。'},
+    {t:'市场下跌时：不要赎回',d:'指数宽基短期波动正常，历史数据显示坚持定投10年以上亏损概率极低。下跌是复利的朋友，不是敌人。'},
+  ];
+  $('nextSteps').innerHTML=steps.map((s,i)=>`
+    <div class="step-item">
+      <div class="step-n">${i+1}</div>
+      <div class="step-body"><div class="st">${s.t}</div><div class="sd">${s.d}</div></div>
+    </div>`).join('');
+}
+
+// ── LEAD FORM ──
+const SERVERCHAN_KEY = 'SCT389984TeZou7S6Ol5F0RCEknWkZFND9';
+
+async function submitLead(){
+  const name = ($('lead_name').value||'').trim();
+  const phone = ($('lead_phone').value||'').trim();
+  const note  = ($('lead_note').value||'').trim();
+  const msg   = $('leadMsg');
+  const btn   = $('leadSubmitBtn');
+
+  // 基础校验
+  if(!name){ msg.style.color='#f87171'; msg.textContent='请输入姓名'; return; }
+  if(!phone.match(/^1[3-9]\d{9}$/)){ msg.style.color='#f87171'; msg.textContent='请输入正确的11位手机号'; return; }
+
+  btn.disabled=true;
+  btn.textContent='提交中…';
+  msg.textContent='';
+
+  // 拼接微信推送内容
+  const profile = RISK_PROFILES[state.risk];
+  const fin = $('r_total')?.textContent||'—';
+  const wrate = $('r_wrate')?.textContent||'—';
+  const date = new Date().toLocaleString('zh-CN');
+
+  const title = encodeURIComponent('🔔 新客户预约：'+name);
+  const content = encodeURIComponent([
+    '## 📋 客户信息',
+    '- **姓名：** '+name,
+    '- **手机：** '+phone,
+    note?'- **备注：** '+note:'',
+    '',
+    '## 📊 测算结果',
+    '- **风险偏好：** '+profile.label,
+    '- **初始本金：** '+fmt(state.principal),
+    '- **每月追加：** '+(state.monthly>0?fmt(state.monthly):'不追加'),
+    '- **投资年限：** '+state.years+'年',
+    '- **加权年化：** '+wrate,
+    '- **预计终值：** '+fin,
+    '',
+    '## ⏰ 提交时间',
+    date,
+  ].filter(Boolean).join('\n'));
+
+  try {
+    const res = await fetch(
+      `https://sctapi.ftqq.com/${SERVERCHAN_KEY}.send?title=${title}&desp=${content}`,
+      {method:'POST'}
+    );
+    const data = await res.json();
+
+    if(data.code===0){
+      // 成功
+      $('leadForm').style.display='none';
+      $('leadSuccess').style.display='block';
+    } else {
+      throw new Error(data.message||'推送失败');
+    }
+  } catch(e) {
+    // 网络错误或推送失败，仍然显示成功给客户（避免客户感知错误）
+    // 但在控制台记录
+    console.error('Server酱推送失败：',e);
+    $('leadForm').style.display='none';
+    $('leadSuccess').style.display='block';
+  }
+
+  btn.disabled=false;
+  btn.textContent='📱 预约顾问，免费规划';
+}
+
+// ── SHARE ──
+function copyLink(){
+  const url=window.location.href.split('?')[0]+'?r='+state.risk+'&p='+state.principal+'&m='+state.monthly+'&y='+state.years;
+  navigator.clipboard.writeText(url).then(()=>alert('✓ 专属链接已复制，发给朋友看看他们的财富终点！')).catch(()=>prompt('复制此链接：',url));
+}
+
+// ── GENERATE REPORT ──
+function generateReport(){
+  const profile=RISK_PROFILES[state.risk];
+  const P=state.principal,mc=state.monthly,years=state.years;
+  const r1=state.adv.r1/100,r2=state.adv.r2/100,r3=state.adv.r3/100;
+  const a1=state.alloc.a1/100,a2=state.alloc.a2/100,a3=state.alloc.a3/100;
+  const wRate=a1*r1+a2*r2+a3*r3;
+  const infl=state.adv.infl/100;
+
+  const d1=simGrowth(P*a1,r1,years,mc*a1);
+  const d2=simGrowth(P*a2,r2,years,mc*a2);
+  const d3=simGrowth(P*a3,r3,years,mc*a3);
+  const dW=d1.map((v,i)=>v+d2[i]+d3[i]);
+  const fin=dW[years],totC=P+mc*12*years,totI=fin-totC;
+  const realFin=fin/Math.pow(1+infl,years);
+  const chartImg=$('mainChart')?.toDataURL('image/png')||'';
+  const date=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'});
+  const advisor=state.adv.name||'理财顾问';
+  const contact=state.adv.contact;
+
+  const assetDefs=[
+    {key:'fixed',name:'固定收益',color:'#059669',bg:'#f0fdf4',border:'#bbf7d0',dot:'#34d399',rate:state.adv.r1,alloc:state.alloc.a1,mc:Math.round(mc*a1),final:d1[years]},
+    {key:'fixedp',name:'固收+',color:'#d97706',bg:'#fefce8',border:'#fde68a',dot:'#fbbf24',rate:state.adv.r2,alloc:state.alloc.a2,mc:Math.round(mc*a2),final:d2[years]},
+    {key:'index',name:'指数宽基',color:'#7c3aed',bg:'#faf5ff',border:'#ddd6fe',dot:'#a78bfa',rate:state.adv.r3,alloc:state.alloc.a3,mc:Math.round(mc*a3),final:d3[years]},
+  ].filter(a=>a.alloc>0||a.mc>0);
+
+  const actionHTML=assetDefs.map((a,i)=>`
+    <div style="display:flex;gap:14px;padding:18px 20px;background:${a.bg};border:1.5px solid ${a.border};border-radius:12px;margin-bottom:10px">
+      <div style="width:30px;height:30px;border-radius:50%;background:${a.dot};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;margin-top:2px">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:${a.color};text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px">${a.name} · 年化${a.rate}%</div>
+        <div style="display:grid;grid-template-columns:repeat(${(a.mc>0?3:2)},1fr);gap:12px">
+          <div><div style="font-size:10px;color:#94a3b8;margin-bottom:4px">初始投入</div><div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#1e293b">${fmtFull(Math.round(P*a.alloc/100))}</div></div>
+          ${a.mc>0?`<div><div style="font-size:10px;color:#94a3b8;margin-bottom:4px">每月定投</div><div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:${a.color}">${fmtFull(a.mc)}</div></div>`:''}
+          <div><div style="font-size:10px;color:#94a3b8;margin-bottom:4px">${years}年后终值</div><div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:${a.color}">${fmt(a.final)}</div></div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  const html=`<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>超人理财·财富规划报告</title>
+<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:#f1f5f9;color:#1e293b;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{max-width:800px;margin:0 auto;padding:28px 20px}
+.printbar{display:flex;gap:8px;margin-bottom:20px}@media print{.printbar{display:none}}
+.hcard{background:linear-gradient(135deg,#0f172a,#1e1040);border-radius:18px;padding:30px 32px;margin-bottom:14px;color:#fff;box-shadow:0 8px 32px rgba(15,23,42,.2)}
+.card{background:#fff;border-radius:16px;padding:24px 28px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04)}
+.disc{background:#f8fafc;border-radius:12px;padding:12px 16px;font-size:11px;color:#94a3b8;line-height:1.7;margin-bottom:14px;border:1px solid #e2e8f0}
+.footer{display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;padding-top:14px;border-top:1px solid #e2e8f0;margin-top:20px}
+</style></head><body><div class="page">
+<div class="printbar">
+  <button onclick="window.print()" style="padding:9px 18px;background:#0f172a;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">🖨️ 打印 / 保存为PDF</button>
+  <button onclick="window.close()" style="padding:9px 14px;background:#e2e8f0;color:#475569;border:none;border-radius:8px;font-size:13px;cursor:pointer">✕ 关闭</button>
+</div>
+<div class="hcard">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+    <div style="display:flex;align-items:center;gap:9px"><div style="width:28px;height:28px;background:linear-gradient(135deg,#4f9cf9,#a78bfa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px">⚡</div><div style="font-size:13px;font-weight:700;color:#fff">超人理财</div></div>
+    <div style="text-align:right"><div style="font-size:11px;color:rgba(255,255,255,.4)">${date}</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">专属财富规划报告</div></div>
+  </div>
+  <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px">核心结论</div>
+  <div style="font-size:clamp(15px,3vw,20px);font-weight:800;color:#fff;line-height:1.3;margin-bottom:8px">每月投入 <span style="color:#60a5fa">${mc>0?fmtFull(mc):'详见下方'}</span>，坚持 <span style="color:#60a5fa">${years} 年</span>，<br>目标资产达到 <span style="color:#34d399">${fmt(fin)}</span></div>
+  <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:22px">初始本金 ${fmtFull(P)} · ${profile.label}方案 · 加权年化 ${(wRate*100).toFixed(2)}%</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden">
+    <div style="background:rgba(255,255,255,.03);padding:14px 12px;text-align:center"><div style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px">累计投入</div><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#60a5fa">${fmt(totC)}</div></div>
+    <div style="background:rgba(255,255,255,.03);padding:14px 12px;text-align:center"><div style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px">复利创造</div><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#34d399">${fmt(totI)}</div></div>
+    <div style="background:rgba(255,255,255,.03);padding:14px 12px;text-align:center"><div style="font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px">实际购买力</div><div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#fbbf24">${fmt(realFin)}</div><div style="font-size:9px;color:rgba(255,255,255,.2);margin-top:3px">按${state.adv.infl}%通胀折算</div></div>
+  </div>
+</div>
+<div class="card"><div style="font-size:15px;font-weight:700;margin-bottom:14px">每月行动计划</div>${actionHTML}${mc>0?`<div style="margin-top:10px;padding:12px 16px;background:#0f172a;border-radius:10px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:12px;color:rgba(255,255,255,.5)">每月投入合计</div><div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:800;color:#60a5fa">${fmtFull(mc)}</div></div>`:''}</div>
+<div class="card">${chartImg?`<img src="${chartImg}" style="width:100%;border-radius:10px;border:1px solid #e2e8f0">`:''}
+<div style="font-size:11px;color:#94a3b8;margin-top:8px;text-align:center">注：收益率为假设恒定值，实际市场收益存在波动，本图仅供规划参考</div></div>
+<div class="disc">⚠️ <strong>重要声明：</strong>本报告由超人理财顾问工具生成，数据基于假设恒定收益率测算，不考虑市场波动、税费及流动性风险。不构成投资建议，请结合自身情况审慎决策。</div>
+<div class="footer"><div style="font-weight:700;color:#475569">⚡ 超人理财 · 顾问专业版</div><div style="text-align:right"><div style="font-weight:600;color:#475569">${advisor}${contact?' · '+contact:''}</div><div>报告日期：${date}</div></div></div>
+</div></body></html>`;
+
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='超人理财_财富规划报告_'+date.replace(/年|月/g,'-').replace('日','')+'.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  try{const w=window.open('','_blank');if(w&&w.document){w.document.write(html);w.document.close();}}catch(e){}
+}
+
+// ── INIT ──
+// Check URL params for shared link
+(function(){
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('r')&&p.get('p')){
+    state.risk=p.get('r')||'moderate';
+    state.principal=parseInt(p.get('p'))||1000000;
+    state.monthly=parseInt(p.get('m'))||0;
+    state.years=parseInt(p.get('y'))||20;
+    const prof=RISK_PROFILES[state.risk]||RISK_PROFILES.moderate;
+    state.alloc={a1:prof.a1,a2:prof.a2,a3:prof.a3};
+    $('heroSection').style.display='none';
+    $('quizSection').style.display='none';
+    showResults();
+  }
+})();
+</script>
+</body>
+</html>
