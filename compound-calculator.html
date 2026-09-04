@@ -1,0 +1,3218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>家庭半退休可行性体检器 V0.7</title>
+
+  <style>
+    :root {
+      --navy: #17243f;
+      --navy2: #263957;
+      --green: #a9d7bf;
+      --green-dark: #39745d;
+      --cream: #f6f1e8;
+      --paper: #fffdfa;
+      --orange: #e9a35b;
+      --red: #c96a62;
+      --gray: #58616d;
+      --line: #e3dfd7;
+      --shadow: 0 14px 38px rgba(23, 36, 63, .09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--navy);
+      background: var(--cream);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Microsoft YaHei",
+        "PingFang SC",
+        Arial,
+        sans-serif;
+      line-height: 1.6;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(23, 36, 63, .08);
+      background: rgba(246, 241, 232, .94);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      max-width: 1240px;
+      margin: auto;
+      padding: 13px 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .logo {
+      display: grid;
+      place-items: center;
+      width: 43px;
+      height: 43px;
+      color: var(--green);
+      background: var(--navy);
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 5px 14px rgba(23, 36, 63, .15);
+      font-weight: 900;
+    }
+
+    .brand strong,
+    .brand small {
+      display: block;
+    }
+
+    .brand small {
+      color: var(--gray);
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+    }
+
+    .btn {
+      padding: 9px 14px;
+      color: var(--navy);
+      border: 0;
+      border-radius: 11px;
+      font-weight: 750;
+    }
+
+    .btn-light {
+      background: white;
+      border: 1px solid var(--line);
+    }
+
+    .btn-green {
+      background: var(--green);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 22px;
+      max-width: 1240px;
+      margin: auto;
+      padding: 42px 22px 25px;
+    }
+
+    .hero-main {
+      position: relative;
+      overflow: hidden;
+      min-height: 305px;
+      padding: 38px;
+      color: white;
+      background: var(--navy);
+      border-radius: 27px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-main::after {
+      position: absolute;
+      top: -95px;
+      right: -80px;
+      width: 260px;
+      height: 260px;
+      border: 43px solid rgba(169, 215, 191, .13);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 11px;
+      color: var(--green);
+      background: rgba(169, 215, 191, .12);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .hero h1 {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      margin: 17px 0 15px;
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 1.15;
+      letter-spacing: -.035em;
+    }
+
+    .hero h1 span {
+      color: var(--green);
+    }
+
+    .hero-main p {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0;
+      color: rgba(255, 255, 255, .75);
+    }
+
+    .method-card {
+      padding: 28px;
+      background: var(--green);
+      border-radius: 27px;
+      box-shadow: var(--shadow);
+    }
+
+    .method-card h2 {
+      margin: 0 0 11px;
+      font-size: 23px;
+    }
+
+    .formula {
+      margin: 20px 0;
+      padding: 15px;
+      background: var(--paper);
+      border-radius: 14px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .method-card p,
+    .method-card small {
+      color: rgba(23, 36, 63, .76);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: .92fr 1.08fr;
+      gap: 23px;
+      align-items: start;
+      max-width: 1240px;
+      margin: auto;
+      padding: 0 22px 65px;
+    }
+
+    .results {
+      position: sticky;
+      top: 83px;
+      min-width: 0;
+    }
+
+    .panel,
+    .result-panel {
+      overflow: hidden;
+      margin-bottom: 17px;
+      background: var(--paper);
+      border: 1px solid rgba(23, 36, 63, .07);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      padding: 19px 22px 15px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head h2 {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0 37px;
+      color: var(--gray);
+      font-size: 12px;
+    }
+
+    .step {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: white;
+      background: var(--navy);
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .panel-body {
+      padding: 21px 22px 23px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    label small {
+      display: block;
+      color: #838991;
+      font-weight: 500;
+    }
+
+    .field-note {
+      margin: 7px 0 0;
+      color: #838991;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 11px 13px;
+      color: var(--navy);
+      background: white;
+      border: 1px solid #d7d4cd;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    input[type="number"] {
+      padding-right: 52px;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--green-dark);
+      box-shadow: 0 0 0 3px rgba(169, 215, 191, .27);
+    }
+
+    .unit {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      color: #858b93;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 12px;
+    }
+
+    .member-card {
+      margin-bottom: 15px;
+      padding: 16px;
+      background: #f4f5f2;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .member-card h3 {
+      margin: 0 0 13px;
+      font-size: 15px;
+    }
+
+    .partner-hidden {
+      display: none;
+    }
+
+    .live-cash {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+      margin-top: 15px;
+    }
+
+    .live-item {
+      padding: 11px;
+      background: #f2f3f1;
+      border-radius: 11px;
+    }
+
+    .live-item small {
+      color: var(--gray);
+    }
+
+    .live-item strong {
+      display: block;
+      margin-top: 2px;
+    }
+
+    details {
+      overflow: hidden;
+      background: #f6f6f3;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    summary {
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .detail-content {
+      padding: 0 14px 14px;
+      color: var(--gray);
+      font-size: 12px;
+    }
+
+    .advanced {
+      margin-top: 15px;
+    }
+
+    .calculate {
+      width: 100%;
+      margin-bottom: 20px;
+      padding: 16px;
+      color: white;
+      background: var(--navy);
+      border: 0;
+      border-radius: 15px;
+      box-shadow: 0 12px 26px rgba(23, 36, 63, .18);
+      font-size: 17px;
+      font-weight: 850;
+    }
+
+    .calculate:hover {
+      background: var(--navy2);
+    }
+
+    .error {
+      display: none;
+      margin-bottom: 15px;
+      padding: 13px 15px;
+      color: #7c3832;
+      background: rgba(201, 106, 98, .1);
+      border: 1px solid rgba(201, 106, 98, .35);
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .result-hero {
+      overflow: hidden;
+      margin-bottom: 17px;
+      color: white;
+      background: var(--navy);
+      border-radius: 21px;
+      box-shadow: var(--shadow);
+    }
+
+    .result-top {
+      padding: 25px;
+      background:
+        radial-gradient(
+          circle at 94% 5%,
+          rgba(169, 215, 191, .2),
+          transparent 36%
+        );
+    }
+
+    .result-kicker {
+      color: rgba(255, 255, 255, .57);
+      font-size: 12px;
+      letter-spacing: .05em;
+    }
+
+    .status-line {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .headline {
+      margin: 10px 0 0;
+      font-size: 26px;
+      line-height: 1.35;
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      color: var(--navy);
+      background: var(--green);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .badge.mid {
+      background: var(--orange);
+    }
+
+    .badge.bad {
+      background: #e9958d;
+    }
+
+    .core-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      border-top: 1px solid rgba(255, 255, 255, .11);
+    }
+
+    .core-item {
+      padding: 17px;
+      border-right: 1px solid rgba(255, 255, 255, .11);
+      border-bottom: 1px solid rgba(255, 255, 255, .11);
+    }
+
+    .core-item:nth-child(even) {
+      border-right: 0;
+    }
+
+    .core-item small {
+      color: rgba(255, 255, 255, .57);
+    }
+
+    .core-item strong {
+      display: block;
+      margin-top: 3px;
+      color: white;
+      font-size: 20px;
+    }
+
+    .core-item.highlight strong {
+      color: var(--green);
+      font-size: 24px;
+    }
+
+    .saving-compare {
+      padding: 17px 20px;
+      background: rgba(169, 215, 191, .08);
+      font-size: 13px;
+    }
+
+    .saving-compare strong {
+      color: var(--green);
+    }
+
+    .result-panel {
+      padding: 21px;
+    }
+
+    .result-panel h3 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+
+    .subtitle {
+      margin: 0 0 16px;
+      color: var(--gray);
+      font-size: 12px;
+    }
+
+    .flow,
+    .suggestions {
+      display: grid;
+      gap: 9px;
+    }
+
+    .flow-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #f3f4f1;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .flow-row.minus {
+      color: #7d4d27;
+      background: #fff3e8;
+    }
+
+    .flow-row.total {
+      background: var(--green);
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .assumption-box {
+      padding: 16px;
+      background: #f3f4f1;
+      border-radius: 14px;
+    }
+
+    .assumption-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .assumption-rate {
+      color: var(--green-dark);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .assumption-text {
+      margin-top: 8px;
+      color: var(--gray);
+      font-size: 12px;
+    }
+
+    .allocation-box {
+      padding: 17px;
+      color: white;
+      background: var(--navy);
+      border-radius: 14px;
+    }
+
+    .allocation-result {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .allocation-result strong {
+      color: var(--green);
+      font-size: 20px;
+    }
+
+    .allocation-box p {
+      margin: 9px 0 0;
+      color: rgba(255, 255, 255, .68);
+      font-size: 12px;
+    }
+
+    .allocation-bars {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .bar-line {
+      display: grid;
+      grid-template-columns: 74px 1fr 47px;
+      gap: 9px;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .bar-track {
+      overflow: hidden;
+      height: 9px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 999px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: inherit;
+    }
+
+    .suggestion {
+      padding: 13px;
+      background: #f4f5f2;
+      border-radius: 12px;
+    }
+
+    .suggestion-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .suggestion-text {
+      margin-top: 5px;
+      color: var(--gray);
+      font-size: 11px;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+    }
+
+    .tag.good {
+      color: #285b48;
+      background: rgba(169, 215, 191, .5);
+    }
+
+    .tag.mid {
+      color: #86521d;
+      background: rgba(233, 163, 91, .25);
+    }
+
+    .tag.bad {
+      color: #843c36;
+      background: rgba(201, 106, 98, .18);
+    }
+
+    .notice {
+      padding: 14px;
+      color: #75471f;
+      background: #fff2e6;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    footer {
+      max-width: 1240px;
+      margin: 0 auto 40px;
+      padding: 0 22px;
+    }
+
+    footer div {
+      padding: 17px;
+      color: var(--gray);
+      background: rgba(23, 36, 63, .055);
+      border-radius: 14px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .results {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .grid2,
+      .core-grid,
+      .live-cash {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-main,
+      .method-card {
+        padding: 25px 22px;
+      }
+
+      .actions .btn-light {
+        display: none;
+      }
+
+      .core-item {
+        border-right: 0;
+      }
+    }
+
+    @media print {
+      .topbar,
+      .hero,
+      .inputs,
+      footer {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+      }
+
+      .layout {
+        display: block;
+        padding: 0;
+      }
+
+      .results {
+        position: static;
+      }
+
+      .result-panel,
+      .result-hero {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo">✓</div>
+
+        <div>
+          <strong>家庭资产体检室</strong>
+          <small>家庭半退休可行性体检器 · V0.7</small>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-light" id="sampleBtn">案例001</button>
+        <button class="btn btn-light" id="clearBtn">清空</button>
+        <button class="btn btn-green" id="printBtn">保存报告</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-main">
+      <span class="eyebrow">家庭退休现金流体检 · 不是产品推荐</span>
+
+      <h1>
+        按照家庭目前的资产和现金流，<br>
+        <span>夫妻退休目标能不能实现？</span>
+      </h1>
+
+      <p>
+        分别考虑本人和配偶的年龄、退休时间、工作收入及稳定收入开始时间，
+        再结合家庭共同资产、支出、贷款和储蓄计划，判断家庭退休资金是否足够。
+      </p>
+    </div>
+
+    <aside class="method-card">
+      <h2>家庭退休资金口径</h2>
+
+      <div class="formula">
+        家庭完整退休资金目标<br>
+        ＝长期生活资金＋过渡期资金＋贷款预留
+      </div>
+
+      <p>
+        长期生活资金仍以4%法则为基准；夫妻退休时间不同、
+        稳定收入尚未开始领取的阶段，另外计算过渡期资金。
+      </p>
+
+      <small>
+        4%是退休资金提取率，不是投资收益率。
+        系统统一设置，客户无需填写。
+      </small>
+    </aside>
+  </section>
+
+  <main class="layout">
+    <section class="inputs">
+      <div class="error" id="errorBox"></div>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2><span class="step">1</span>家庭成员与退休时间</h2>
+          <p>夫妻年龄、退休时间和稳定收入开始时间分别计算。</p>
+        </div>
+
+        <div class="panel-body">
+          <div class="grid2" style="margin-bottom:15px;">
+            <div class="full">
+              <label for="householdType">家庭测算方式</label>
+
+              <select id="householdType">
+                <option value="couple" selected>本人＋配偶共同测算</option>
+                <option value="single">仅本人测算</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="member-card">
+            <h3>本人</h3>
+
+            <div class="grid2">
+              <div>
+                <label for="personAAge">当前年龄</label>
+                <div class="input-wrap">
+                  <input id="personAAge" type="number" value="35">
+                  <span class="unit">岁</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="personARetireAge">计划退休年龄</label>
+                <div class="input-wrap">
+                  <input id="personARetireAge" type="number" value="50">
+                  <span class="unit">岁</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="personAIncome">当前税后月收入</label>
+                <div class="input-wrap">
+                  <input id="personAIncome" type="number" value="40000">
+                  <span class="unit">元</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="personAStableIncome">
+                  退休后稳定月收入
+                  <small>如养老金，不含投资收益。</small>
+                </label>
+
+                <div class="input-wrap">
+                  <input id="personAStableIncome" type="number" value="5000">
+                  <span class="unit">元</span>
+                </div>
+              </div>
+
+              <div class="full">
+                <label for="personAStableStartAge">稳定收入开始年龄</label>
+                <div class="input-wrap">
+                  <input id="personAStableStartAge" type="number" value="60">
+                  <span class="unit">岁</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="member-card" id="partnerCard">
+            <h3>配偶</h3>
+
+            <div class="grid2">
+              <div>
+                <label for="personBAge">当前年龄</label>
+                <div class="input-wrap">
+                  <input id="personBAge" type="number" value="33">
+                  <span class="unit">岁</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="personBRetireAge">计划退休年龄</label>
+                <div class="input-wrap">
+                  <input id="personBRetireAge" type="number" value="50">
+                  <span class="unit">岁</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="personBIncome">当前税后月收入</label>
+                <div class="input-wrap">
+                  <input id="personBIncome" type="number" value="30000">
+                  <span class="unit">元</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="personBStableIncome">
+                  退休后稳定月收入
+                  <small>如养老金，不含投资收益。</small>
+                </label>
+
+                <div class="input-wrap">
+                  <input id="personBStableIncome" type="number" value="4000">
+                  <span class="unit">元</span>
+                </div>
+              </div>
+
+              <div class="full">
+                <label for="personBStableStartAge">稳定收入开始年龄</label>
+                <div class="input-wrap">
+                  <input id="personBStableStartAge" type="number" value="55">
+                  <span class="unit">岁</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label for="planAge">
+                家庭计划测算至
+                <small>按家庭中较年轻成员达到该年龄计算。</small>
+              </label>
+
+              <div class="input-wrap">
+                <input id="planAge" type="number" value="90">
+                <span class="unit">岁</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="dependents">需承担责任人数</label>
+              <div class="input-wrap">
+                <input id="dependents" type="number" value="3">
+                <span class="unit">人</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="incomeStability">家庭收入稳定性</label>
+              <select id="incomeStability">
+                <option value="1">波动较大</option>
+                <option value="2">一般</option>
+                <option value="3" selected>较稳定</option>
+                <option value="4">很稳定且来源多元</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="goalFlexibility">家庭退休年龄灵活性</label>
+              <select id="goalFlexibility">
+                <option value="1">不能延后</option>
+                <option value="2" selected>可延后1—2年</option>
+                <option value="3">可以灵活调整</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2><span class="step">2</span>当前家庭现金流与贷款</h2>
+          <p>家庭收入由本人和配偶收入自动合计。</p>
+        </div>
+
+        <div class="panel-body">
+          <div class="grid2">
+            <div>
+              <label for="essentialExpense">家庭每月必要生活支出</label>
+              <div class="input-wrap">
+                <input id="essentialExpense" type="number" value="25000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="optionalExpense">家庭每月可选消费</label>
+              <div class="input-wrap">
+                <input id="optionalExpense" type="number" value="10000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="plannedSaving">
+                家庭当前每月退休投入
+                <small>夫妻当前合计投入退休目标的金额。</small>
+              </label>
+
+              <div class="input-wrap">
+                <input id="plannedSaving" type="number" value="35000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="monthlyDebt">家庭当前每月贷款还款</label>
+              <div class="input-wrap">
+                <input id="monthlyDebt" type="number" value="0">
+                <span class="unit">元</span>
+              </div>
+            </div>
+
+            <div class="full">
+              <label for="loanYears">
+                剩余还款期限
+                <small>没有贷款填写0。</small>
+              </label>
+
+              <div class="input-wrap">
+                <input id="loanYears" type="number" step="0.5" value="0">
+                <span class="unit">年</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="field-note">
+            一方退休后，系统会停止计算该成员的工作收入。
+            贷款还清后，系统优先将释放的月供继续用于退休积累，
+            但不会超过该阶段家庭实际可用结余。
+          </p>
+
+          <div class="live-cash">
+            <div class="live-item">
+              <small>家庭月收入</small>
+              <strong id="liveIncome">—</strong>
+            </div>
+
+            <div class="live-item">
+              <small>当前月结余</small>
+              <strong id="liveSurplus">—</strong>
+            </div>
+
+            <div class="live-item">
+              <small>结余率</small>
+              <strong id="liveRate">—</strong>
+            </div>
+
+            <div class="live-item">
+              <small>计划投入后剩余</small>
+              <strong id="liveRemaining">—</strong>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2><span class="step">3</span>家庭当前实际资产配置</h2>
+          <p>填写夫妻及家庭共同持有、可以纳入本次分析的金融资产。</p>
+        </div>
+
+        <div class="panel-body">
+          <div class="grid2">
+            <div>
+              <label for="cashAsset">现金与存款</label>
+              <div class="input-wrap">
+                <input id="cashAsset" type="number" value="200">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="stableAsset">低波动资产</label>
+              <div class="input-wrap">
+                <input id="stableAsset" type="number" value="150">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="growthAsset">权益及高波动资产</label>
+              <div class="input-wrap">
+                <input id="growthAsset" type="number" value="150">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="otherAsset">其他可投资资产</label>
+              <div class="input-wrap">
+                <input id="otherAsset" type="number" value="0">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+
+            <div class="full">
+              <label for="shortDebt">
+                计划近期偿还的高成本负债
+                <small>不填写正常持续偿还的住房贷款余额。</small>
+              </label>
+
+              <div class="input-wrap">
+                <input id="shortDebt" type="number" value="0">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2><span class="step">4</span>已隔离或需要优先保留的资金</h2>
+          <p>这些资金不会再次计入家庭退休资产。</p>
+        </div>
+
+        <div class="panel-body">
+          <div class="grid2">
+            <div>
+              <label for="emergencyMonths">家庭应急资金目标</label>
+              <div class="input-wrap">
+                <input id="emergencyMonths" type="number" value="9">
+                <span class="unit">个月</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="shortReserve">3年内确定性支出</label>
+              <div class="input-wrap">
+                <input id="shortReserve" type="number" value="20">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="educationReserve">已预留子女教育资金</label>
+              <div class="input-wrap">
+                <input id="educationReserve" type="number" value="60">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="elderReserve">已预留父母养老医疗资金</label>
+              <div class="input-wrap">
+                <input id="elderReserve" type="number" value="30">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+
+            <div class="full">
+              <label for="otherReserve">已预留其他目标资金</label>
+              <div class="input-wrap">
+                <input id="otherReserve" type="number" value="0">
+                <span class="unit">万元</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2><span class="step">5</span>家庭退休后的生活目标</h2>
+          <p>以下金额均按家庭合计，并按照今天的购买力填写。</p>
+        </div>
+
+        <div class="panel-body">
+          <div class="grid2">
+            <div>
+              <label for="retirementMonthlySpending">
+                家庭完全退休后每月支出
+              </label>
+
+              <div class="input-wrap">
+                <input id="retirementMonthlySpending" type="number" value="25000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="otherStableIncome">
+                家庭其他稳定月收入
+                <small>如租金等，不含夫妻养老金和投资收益。</small>
+              </label>
+
+              <div class="input-wrap">
+                <input id="otherStableIncome" type="number" value="2000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="advanced">
+            <details>
+              <summary>高级参数：通胀、费用与收益假设</summary>
+
+              <div class="detail-content">
+                <div class="grid2">
+                  <div>
+                    <label for="inflation">长期通胀假设</label>
+                    <div class="input-wrap">
+                      <input id="inflation" type="number" step="0.1" value="2.5">
+                      <span class="unit">%</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="annualFee">年度综合投资费用</label>
+                    <div class="input-wrap">
+                      <input id="annualFee" type="number" step="0.1" value="0.3">
+                      <span class="unit">%</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="cashReturn">现金与存款年收益假设</label>
+                    <div class="input-wrap">
+                      <input id="cashReturn" type="number" step="0.05" value="0.95">
+                      <span class="unit">%</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="stableReturn">低波动资产年收益假设</label>
+                    <div class="input-wrap">
+                      <input id="stableReturn" type="number" step="0.1" value="2.5">
+                      <span class="unit">%</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="growthReturn">高波动资产年收益假设</label>
+                    <div class="input-wrap">
+                      <input id="growthReturn" type="number" step="0.1" value="5">
+                      <span class="unit">%</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="otherReturn">其他资产年收益假设</label>
+                    <div class="input-wrap">
+                      <input id="otherReturn" type="number" step="0.1" value="3">
+                      <span class="unit">%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p>
+                  收益率、通胀和费用均为教育测算参数，不代表实际收益或收益承诺。
+                </p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2><span class="step">6</span>家庭风险意愿</h2>
+          <p>以家庭实际能够共同接受的风险水平填写。</p>
+        </div>
+
+        <div class="panel-body">
+          <div class="grid2">
+            <div class="full">
+              <label for="riskReaction">资产短期下跌20%时，家庭更可能：</label>
+
+              <select id="riskReaction">
+                <option value="1">立即卖出</option>
+                <option value="2">减少风险资产</option>
+                <option value="3" selected>先核对目标和期限</option>
+                <option value="4">继续持有</option>
+                <option value="5">长期逻辑不变则继续投入</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="riskLoss">可接受年度波动</label>
+              <select id="riskLoss">
+                <option value="1">基本不能接受</option>
+                <option value="2">约5%以内</option>
+                <option value="3" selected>约10%—15%</option>
+                <option value="4">约20%左右</option>
+                <option value="5">30%以上</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="riskChoice">收益与稳定偏好</label>
+              <select id="riskChoice">
+                <option value="1">优先稳定</option>
+                <option value="2">稳定为主</option>
+                <option value="3" selected>目标范围内平衡</option>
+                <option value="4">接受较高波动</option>
+                <option value="5">优先长期增长</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <button class="calculate" id="calculateBtn">
+        生成家庭退休体检结果
+      </button>
+    </section>
+
+    <section class="results" id="results">
+      <section class="result-hero">
+        <div class="result-top">
+          <div class="status-line">
+            <div>
+              <div class="result-kicker">
+                家庭共同资产与现金流 · 退休体检结果
+              </div>
+
+              <h2 class="headline" id="headline">—</h2>
+            </div>
+
+            <span class="badge" id="statusBadge">—</span>
+          </div>
+        </div>
+
+        <div class="core-grid">
+          <div class="core-item">
+            <small>家庭退休后每月想花</small>
+            <strong id="targetMonthlySpend">—</strong>
+          </div>
+
+          <div class="core-item">
+            <small>家庭稳定收入每月覆盖</small>
+            <strong id="stableMonthlyIncome">—</strong>
+          </div>
+
+          <div class="core-item">
+            <small>家庭长期每月缺口</small>
+            <strong id="portfolioMonthlyNeed">—</strong>
+          </div>
+
+          <div class="core-item">
+            <small>家庭完整退休资金目标</small>
+            <strong id="completeTarget">—</strong>
+          </div>
+
+          <div class="core-item">
+            <small>按家庭当前计划预计积累</small>
+            <strong id="projectedCapital">—</strong>
+          </div>
+
+          <div class="core-item highlight">
+            <small>家庭每月还需额外补充</small>
+            <strong id="additionalMonthlySaving">—</strong>
+          </div>
+        </div>
+
+        <div class="saving-compare" id="savingCompare">—</div>
+      </section>
+
+      <section class="result-panel">
+        <h3>家庭退休时间与资金组成</h3>
+
+        <p class="subtitle">
+          展示家庭完全退休时间、长期生活资金和退休过渡期资金。
+        </p>
+
+        <div class="flow" id="familyTimeline"></div>
+      </section>
+
+      <section class="result-panel">
+        <h3>当前纳入家庭退休测算的资产</h3>
+
+        <p class="subtitle">
+          排除应急资金、近期支出及已经明确预留的其他目标资金。
+        </p>
+
+        <div class="flow" id="capitalFlow"></div>
+      </section>
+
+      <section class="result-panel">
+        <h3>本次家庭退休测算口径</h3>
+
+        <p class="subtitle">
+          收益率只用于计算当前计划，不构成收益预测。
+        </p>
+
+        <div class="assumption-box">
+          <div class="assumption-top">
+            <span>家庭退休资产加权名义收益假设</span>
+            <strong class="assumption-rate" id="weightedNominal">—</strong>
+          </div>
+
+          <div class="assumption-text" id="assumptionText">—</div>
+        </div>
+      </section>
+
+      <section class="result-panel">
+        <h3>已有配置与风险边界检测</h3>
+
+        <p class="subtitle">
+          根据家庭退休资产结构、目标期限和家庭风险意愿进行初筛。
+        </p>
+
+        <div class="allocation-box">
+          <div class="allocation-result">
+            <span>家庭当前配置判断</span>
+            <strong id="allocationStatus">—</strong>
+          </div>
+
+          <p id="allocationMessage">—</p>
+
+          <div class="allocation-bars" id="allocationBars"></div>
+        </div>
+      </section>
+
+      <section class="result-panel">
+        <h3>检测建议</h3>
+
+        <div class="suggestions" id="suggestions"></div>
+      </section>
+
+      <section class="result-panel">
+        <h3>模型假设与边界</h3>
+
+        <div class="notice" id="durationNotice">—</div>
+
+        <br>
+
+        <details>
+          <summary>查看家庭现金流计算口径</summary>
+
+          <div class="detail-content">
+            <p>
+              <strong>1. 家庭完全退休时间：</strong>
+              取本人和配偶中较晚的退休时间。
+            </p>
+
+            <p>
+              <strong>2. 工作收入：</strong>
+              某位家庭成员达到退休年龄后，系统停止计算该成员的工作收入。
+            </p>
+
+            <p>
+              <strong>3. 稳定收入：</strong>
+              本人和配偶的养老金等稳定收入，从各自填写的开始年龄起计入。
+            </p>
+
+            <p>
+              <strong>4. 退休过渡期：</strong>
+              家庭完全退休后、养老金等稳定收入尚未开始领取的资金缺口，
+              单独计入退休目标。
+            </p>
+
+            <p>
+              <strong>5. 长期生活资金：</strong>
+              家庭长期生活资金目标＝
+              （家庭退休年支出－家庭长期稳定年收入）÷4%。
+            </p>
+
+            <p>
+              <strong>6. 贷款：</strong>
+              贷款还清前持续占用家庭现金流；
+              贷款还清后，释放的月供优先转为退休积累。
+            </p>
+
+            <p>
+              <strong>7. 储蓄限制：</strong>
+              每个阶段实际投入不会超过该阶段家庭可用现金结余。
+              如果某阶段家庭收入不足以覆盖支出，差额会从退休资产中扣除。
+            </p>
+
+            <p>
+              <strong>8. 额外补充：</strong>
+              “家庭每月还需额外补充”是在现有家庭月投入基础上增加的金额。
+            </p>
+
+            <p>
+              <strong>9. 实际收益：</strong>
+              实际收益率＝
+              （1＋费用后名义收益率）÷（1＋通胀率）－1。
+            </p>
+          </div>
+        </details>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <div>
+      <strong>重要说明：</strong>
+      本工具用于家庭财务规划教育和退休资金初步测算，
+      不构成投资建议、具体配置建议或收益承诺。
+      4%法则只是快速规划基准，不保证家庭退休资金一定不会耗尽。
+    </div>
+  </footer>
+
+  <script>
+    "use strict";
+
+    const WITHDRAWAL_RATE = 0.04;
+
+    const SAMPLE = {
+      householdType: "couple",
+
+      personAAge: 35,
+      personARetireAge: 50,
+      personAIncome: 40000,
+      personAStableIncome: 5000,
+      personAStableStartAge: 60,
+
+      personBAge: 33,
+      personBRetireAge: 50,
+      personBIncome: 30000,
+      personBStableIncome: 4000,
+      personBStableStartAge: 55,
+
+      planAge: 90,
+      dependents: 3,
+      incomeStability: 3,
+      goalFlexibility: 2,
+
+      essentialExpense: 25000,
+      optionalExpense: 10000,
+      plannedSaving: 35000,
+      monthlyDebt: 0,
+      loanYears: 0,
+
+      cashAsset: 200,
+      stableAsset: 150,
+      growthAsset: 150,
+      otherAsset: 0,
+      shortDebt: 0,
+
+      emergencyMonths: 9,
+      shortReserve: 20,
+      educationReserve: 60,
+      elderReserve: 30,
+      otherReserve: 0,
+
+      retirementMonthlySpending: 25000,
+      otherStableIncome: 2000,
+
+      inflation: 2.5,
+      annualFee: 0.3,
+      cashReturn: 0.95,
+      stableReturn: 2.5,
+      growthReturn: 5,
+      otherReturn: 3,
+
+      riskReaction: 3,
+      riskLoss: 3,
+      riskChoice: 3
+    };
+
+    function n(id) {
+      const element = document.getElementById(id);
+      const value = Number(element ? element.value : 0);
+
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function valueOf(id) {
+      const element = document.getElementById(id);
+      return element ? element.value : "";
+    }
+
+    function wanToYuan(value) {
+      return value * 10000;
+    }
+
+    function formatWan(value, digits = 1) {
+      if (!Number.isFinite(value)) {
+        return "无法计算";
+      }
+
+      return (
+        Math.max(0, value) / 10000
+      ).toLocaleString("zh-CN", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      }) + "万元";
+    }
+
+    function formatYuan(value) {
+      if (!Number.isFinite(value)) {
+        return "无法计算";
+      }
+
+      return Math.max(
+        0,
+        Math.round(value)
+      ).toLocaleString("zh-CN") + "元";
+    }
+
+    function formatSignedYuan(value) {
+      if (!Number.isFinite(value)) {
+        return "—";
+      }
+
+      return Math.round(value).toLocaleString("zh-CN") + "元";
+    }
+
+    function formatPercent(value) {
+      if (!Number.isFinite(value)) {
+        return "—";
+      }
+
+      return (value * 100).toFixed(1) + "%";
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function ageToMonth(currentAge, targetAge) {
+      return Math.max(
+        0,
+        Math.round((targetAge - currentAge) * 12)
+      );
+    }
+
+    function allocateAfterExclusion(assets, excluded) {
+      const remaining = {
+        cash: Math.max(0, assets.cash),
+        stable: Math.max(0, assets.stable),
+        growth: Math.max(0, assets.growth),
+        other: Math.max(0, assets.other)
+      };
+
+      let toExclude = Math.max(0, excluded);
+      const order = ["cash", "stable", "other", "growth"];
+
+      order.forEach(key => {
+        if (toExclude <= 0) {
+          return;
+        }
+
+        const deduction = Math.min(
+          remaining[key],
+          toExclude
+        );
+
+        remaining[key] -= deduction;
+        toExclude -= deduction;
+      });
+
+      remaining.total =
+        remaining.cash +
+        remaining.stable +
+        remaining.growth +
+        remaining.other;
+
+      remaining.unfundedExcluded = toExclude;
+
+      return remaining;
+    }
+
+    function getData() {
+      const data = {};
+
+      data.hasPartner =
+        valueOf("householdType") === "couple";
+
+      data.personAAge = n("personAAge");
+      data.personARetireAge = n("personARetireAge");
+      data.personAIncome = n("personAIncome");
+      data.personAStableIncome = n("personAStableIncome");
+      data.personAStableStartAge = n("personAStableStartAge");
+
+      data.personBAge = data.hasPartner
+        ? n("personBAge")
+        : 0;
+
+      data.personBRetireAge = data.hasPartner
+        ? n("personBRetireAge")
+        : 0;
+
+      data.personBIncome = data.hasPartner
+        ? n("personBIncome")
+        : 0;
+
+      data.personBStableIncome = data.hasPartner
+        ? n("personBStableIncome")
+        : 0;
+
+      data.personBStableStartAge = data.hasPartner
+        ? n("personBStableStartAge")
+        : 0;
+
+      data.planAge = n("planAge");
+      data.dependents = n("dependents");
+      data.incomeStability = n("incomeStability");
+      data.goalFlexibility = n("goalFlexibility");
+
+      data.essentialExpense = n("essentialExpense");
+      data.optionalExpense = n("optionalExpense");
+      data.plannedSaving = n("plannedSaving");
+      data.monthlyDebt = n("monthlyDebt");
+      data.loanYears = n("loanYears");
+
+      data.cashAsset = n("cashAsset");
+      data.stableAsset = n("stableAsset");
+      data.growthAsset = n("growthAsset");
+      data.otherAsset = n("otherAsset");
+      data.shortDebt = n("shortDebt");
+
+      data.emergencyMonths = n("emergencyMonths");
+      data.shortReserve = n("shortReserve");
+      data.educationReserve = n("educationReserve");
+      data.elderReserve = n("elderReserve");
+      data.otherReserve = n("otherReserve");
+
+      data.retirementMonthlySpending =
+        n("retirementMonthlySpending");
+
+      data.otherStableIncome =
+        n("otherStableIncome");
+
+      data.inflation = n("inflation");
+      data.annualFee = n("annualFee");
+      data.cashReturn = n("cashReturn");
+      data.stableReturn = n("stableReturn");
+      data.growthReturn = n("growthReturn");
+      data.otherReturn = n("otherReturn");
+
+      data.riskReaction = n("riskReaction");
+      data.riskLoss = n("riskLoss");
+      data.riskChoice = n("riskChoice");
+
+      data.currentMonthlyIncome =
+        data.personAIncome +
+        data.personBIncome;
+
+      data.currentMonthlyExpense =
+        data.essentialExpense +
+        data.optionalExpense +
+        data.monthlyDebt;
+
+      data.monthlySurplus =
+        data.currentMonthlyIncome -
+        data.currentMonthlyExpense;
+
+      data.remainingMonthlyCapacity =
+        data.monthlySurplus -
+        data.plannedSaving;
+
+      data.essentialCashFlow =
+        data.essentialExpense +
+        data.monthlyDebt;
+
+      data.personARetireMonth = ageToMonth(
+        data.personAAge,
+        data.personARetireAge
+      );
+
+      data.personAStableStartMonth = ageToMonth(
+        data.personAAge,
+        data.personAStableStartAge
+      );
+
+      data.personBRetireMonth = data.hasPartner
+        ? ageToMonth(
+            data.personBAge,
+            data.personBRetireAge
+          )
+        : 0;
+
+      data.personBStableStartMonth = data.hasPartner
+        ? ageToMonth(
+            data.personBAge,
+            data.personBStableStartAge
+          )
+        : 0;
+
+      data.fullRetirementMonth = data.hasPartner
+        ? Math.max(
+            data.personARetireMonth,
+            data.personBRetireMonth
+          )
+        : data.personARetireMonth;
+
+      data.yearsToTarget =
+        data.fullRetirementMonth / 12;
+
+      const youngestCurrentAge = data.hasPartner
+        ? Math.min(
+            data.personAAge,
+            data.personBAge
+          )
+        : data.personAAge;
+
+      data.totalPlanMonths = ageToMonth(
+        youngestCurrentAge,
+        data.planAge
+      );
+
+      data.retirementMonths = Math.max(
+        0,
+        data.totalPlanMonths -
+        data.fullRetirementMonth
+      );
+
+      data.retirementYears =
+        data.retirementMonths / 12;
+
+      data.loanMonths = Math.max(
+        0,
+        Math.round(data.loanYears * 12)
+      );
+
+      data.assets = {
+        cash: wanToYuan(data.cashAsset),
+        stable: wanToYuan(data.stableAsset),
+        growth: wanToYuan(data.growthAsset),
+        other: wanToYuan(data.otherAsset)
+      };
+
+      data.totalAssets =
+        data.assets.cash +
+        data.assets.stable +
+        data.assets.growth +
+        data.assets.other;
+
+      data.shortDebtYuan =
+        wanToYuan(data.shortDebt);
+
+      data.emergencyNeed =
+        data.essentialCashFlow *
+        data.emergencyMonths;
+
+      data.shortReserveYuan =
+        wanToYuan(data.shortReserve);
+
+      data.educationReserveYuan =
+        wanToYuan(data.educationReserve);
+
+      data.elderReserveYuan =
+        wanToYuan(data.elderReserve);
+
+      data.otherReserveYuan =
+        wanToYuan(data.otherReserve);
+
+      data.totalExcluded =
+        data.emergencyNeed +
+        data.shortReserveYuan +
+        data.educationReserveYuan +
+        data.elderReserveYuan +
+        data.otherReserveYuan +
+        data.shortDebtYuan;
+
+      data.retirementAssets = allocateAfterExclusion(
+        data.assets,
+        data.totalExcluded
+      );
+
+      data.usableCapital =
+        data.retirementAssets.total;
+
+      data.longTermStableMonthlyIncome =
+        data.personAStableIncome +
+        data.personBStableIncome +
+        data.otherStableIncome;
+
+      data.longTermMonthlyGap = Math.max(
+        0,
+        data.retirementMonthlySpending -
+        data.longTermStableMonthlyIncome
+      );
+
+      data.lifestyleTarget =
+        data.longTermMonthlyGap *
+        12 /
+        WITHDRAWAL_RATE;
+
+      data.inflationRate =
+        data.inflation / 100;
+
+      data.annualFeeRate =
+        data.annualFee / 100;
+
+      data.baseReturns = {
+        cash: data.cashReturn / 100,
+        stable: data.stableReturn / 100,
+        growth: data.growthReturn / 100,
+        other: data.otherReturn / 100
+      };
+
+      return data;
+    }
+
+    function validate(data) {
+      const errors = [];
+
+      if (
+        data.personAAge < 18 ||
+        data.personAAge > 80
+      ) {
+        errors.push("本人当前年龄应在18—80岁之间。");
+      }
+
+      if (
+        data.personARetireAge <=
+        data.personAAge
+      ) {
+        errors.push("本人退休年龄必须大于当前年龄。");
+      }
+
+      if (
+        data.personAStableStartAge <
+        data.personARetireAge
+      ) {
+        errors.push("本人稳定收入开始年龄不能早于退休年龄。");
+      }
+
+      if (data.hasPartner) {
+        if (
+          data.personBAge < 18 ||
+          data.personBAge > 80
+        ) {
+          errors.push("配偶当前年龄应在18—80岁之间。");
+        }
+
+        if (
+          data.personBRetireAge <=
+          data.personBAge
+        ) {
+          errors.push("配偶退休年龄必须大于当前年龄。");
+        }
+
+        if (
+          data.personBStableStartAge <
+          data.personBRetireAge
+        ) {
+          errors.push("配偶稳定收入开始年龄不能早于退休年龄。");
+        }
+      }
+
+      if (data.planAge <= data.personARetireAge) {
+        errors.push("家庭计划测算年龄必须大于本人退休年龄。");
+      }
+
+      if (
+        data.hasPartner &&
+        data.planAge <= data.personBRetireAge
+      ) {
+        errors.push("家庭计划测算年龄必须大于配偶退休年龄。");
+      }
+
+      if (data.currentMonthlyIncome <= 0) {
+        errors.push("家庭当前月收入必须大于0。");
+      }
+
+      if (data.monthlySurplus < 0) {
+        errors.push("家庭当前支出和贷款还款已经超过月收入。");
+      }
+
+      if (data.plannedSaving > data.monthlySurplus) {
+        errors.push("家庭当前退休投入超过实际月结余。");
+      }
+
+      if (data.plannedSaving < 0) {
+        errors.push("家庭当前退休投入不能小于0。");
+      }
+
+      if (data.totalAssets <= 0) {
+        errors.push("请填写家庭当前金融资产。");
+      }
+
+      if (data.retirementMonthlySpending <= 0) {
+        errors.push("请填写家庭退休后每月支出。");
+      }
+
+      if (
+        data.monthlyDebt > 0 &&
+        data.loanYears <= 0
+      ) {
+        errors.push("填写了贷款月供后，请填写剩余还款期限。");
+      }
+
+      if (
+        data.monthlyDebt === 0 &&
+        data.loanYears > 0
+      ) {
+        errors.push("填写了贷款期限后，请填写每月贷款还款金额。");
+      }
+
+      if (
+        data.inflationRate < 0 ||
+        data.inflationRate >= .2
+      ) {
+        errors.push("请检查长期通胀假设。");
+      }
+
+      if (
+        Object.values(data.baseReturns).some(
+          value => value <= -1 || value > .3
+        )
+      ) {
+        errors.push("请检查资产收益率假设。");
+      }
+
+      return errors;
+    }
+
+    function weightedReturn(retirementAssets, returns) {
+      if (retirementAssets.total <= 0) {
+        return 0;
+      }
+
+      return (
+        retirementAssets.cash * returns.cash +
+        retirementAssets.stable * returns.stable +
+        retirementAssets.growth * returns.growth +
+        retirementAssets.other * returns.other
+      ) / retirementAssets.total;
+    }
+
+    function realReturn(nominal, annualFee, inflation) {
+      return (
+        (1 + nominal - annualFee) /
+        (1 + inflation)
+      ) - 1;
+    }
+
+    function monthlyRateFromAnnual(annualRate) {
+      if (annualRate <= -1) {
+        return -1;
+      }
+
+      return Math.pow(
+        1 + annualRate,
+        1 / 12
+      ) - 1;
+    }
+
+    function annuityFactor(rate, months) {
+      if (months <= 0) {
+        return 0;
+      }
+
+      if (Math.abs(rate) < .0000001) {
+        return months;
+      }
+
+      return (
+        Math.pow(1 + rate, months) - 1
+      ) / rate;
+    }
+
+    function monthlyIncomeAt(data, month) {
+      let income = 0;
+
+      if (month < data.personARetireMonth) {
+        income += data.personAIncome;
+      }
+
+      if (
+        month >= data.personAStableStartMonth
+      ) {
+        income += data.personAStableIncome;
+      }
+
+      if (data.hasPartner) {
+        if (month < data.personBRetireMonth) {
+          income += data.personBIncome;
+        }
+
+        if (
+          month >= data.personBStableStartMonth
+        ) {
+          income += data.personBStableIncome;
+        }
+      }
+
+      return income;
+    }
+
+    function calculateTransitionReserve(data, monthlyRate) {
+      let pensionBridgeReserve = 0;
+      let debtReserve = 0;
+
+      for (
+        let month = data.fullRetirementMonth;
+        month < data.totalPlanMonths;
+        month++
+      ) {
+        const monthsAfterRetirement =
+          month -
+          data.fullRetirementMonth +
+          1;
+
+        const discountFactor = Math.pow(
+          1 + monthlyRate,
+          monthsAfterRetirement
+        );
+
+        let missingStableIncome = 0;
+
+        if (
+          month <
+          data.personAStableStartMonth
+        ) {
+          missingStableIncome +=
+            data.personAStableIncome;
+        }
+
+        if (
+          data.hasPartner &&
+          month <
+          data.personBStableStartMonth
+        ) {
+          missingStableIncome +=
+            data.personBStableIncome;
+        }
+
+        pensionBridgeReserve +=
+          missingStableIncome /
+          discountFactor;
+
+        if (month < data.loanMonths) {
+          debtReserve +=
+            data.monthlyDebt /
+            discountFactor;
+        }
+      }
+
+      return {
+        pensionBridgeReserve,
+        debtReserve,
+        total:
+          pensionBridgeReserve +
+          debtReserve
+      };
+    }
+
+    function simulateCurrentPlan(
+      data,
+      monthlyRate,
+      extraSaving = 0
+    ) {
+      let capital = data.usableCapital;
+      let totalContribution = 0;
+      let cashFlowWithdrawal = 0;
+      let constrainedMonths = 0;
+
+      for (
+        let month = 0;
+        month < data.fullRetirementMonth;
+        month++
+      ) {
+        capital *= 1 + monthlyRate;
+
+        const income =
+          monthlyIncomeAt(data, month);
+
+        const debtPayment =
+          month < data.loanMonths
+            ? data.monthlyDebt
+            : 0;
+
+        const householdExpenses =
+          data.essentialExpense +
+          data.optionalExpense +
+          debtPayment;
+
+        const availableCashFlow =
+          income -
+          householdExpenses;
+
+        const releasedLoanSaving =
+          month >= data.loanMonths &&
+          data.monthlyDebt > 0
+            ? data.monthlyDebt
+            : 0;
+
+        const desiredContribution =
+          data.plannedSaving +
+          releasedLoanSaving +
+          extraSaving;
+
+        if (availableCashFlow >= 0) {
+          const actualContribution = Math.min(
+            desiredContribution,
+            availableCashFlow
+          );
+
+          capital += actualContribution;
+          totalContribution += actualContribution;
+
+          if (
+            actualContribution <
+            desiredContribution
+          ) {
+            constrainedMonths++;
+          }
+        } else {
+          capital += availableCashFlow;
+          cashFlowWithdrawal +=
+            Math.abs(availableCashFlow);
+          constrainedMonths++;
+        }
+      }
+
+      return {
+        capital: Math.max(0, capital),
+        totalContribution,
+        cashFlowWithdrawal,
+        constrainedMonths
+      };
+    }
+
+    function calculateAdditionalSaving(
+      data,
+      monthlyRate,
+      completeTarget,
+      currentProjected
+    ) {
+      if (currentProjected >= completeTarget) {
+        return 0;
+      }
+
+      if (data.fullRetirementMonth <= 0) {
+        return Infinity;
+      }
+
+      const gap =
+        completeTarget -
+        currentProjected;
+
+      const factor = annuityFactor(
+        monthlyRate,
+        data.fullRetirementMonth
+      );
+
+      if (factor <= 0) {
+        return Infinity;
+      }
+
+      return gap / factor;
+    }
+
+    function calculatePath(data) {
+      const nominal = weightedReturn(
+        data.retirementAssets,
+        data.baseReturns
+      );
+
+      const netNominal =
+        nominal -
+        data.annualFeeRate;
+
+      const real = realReturn(
+        nominal,
+        data.annualFeeRate,
+        data.inflationRate
+      );
+
+      const monthlyRate =
+        monthlyRateFromAnnual(real);
+
+      const transition = calculateTransitionReserve(
+        data,
+        monthlyRate
+      );
+
+      const completeTarget =
+        data.lifestyleTarget +
+        transition.total;
+
+      const simulation = simulateCurrentPlan(
+        data,
+        monthlyRate
+      );
+
+      const projected =
+        simulation.capital;
+
+      const gap =
+        projected -
+        completeTarget;
+
+      const additionalMonthlySaving =
+        calculateAdditionalSaving(
+          data,
+          monthlyRate,
+          completeTarget,
+          projected
+        );
+
+      const coverage =
+        completeTarget > 0
+          ? projected / completeTarget
+          : Infinity;
+
+      return {
+        nominal,
+        netNominal,
+        real,
+        monthlyRate,
+        transition,
+        completeTarget,
+        simulation,
+        projected,
+        gap,
+        coverage,
+        additionalMonthlySaving
+      };
+    }
+
+    function calculateRisk(data) {
+      let ability = 0;
+
+      if (data.yearsToTarget >= 15) {
+        ability += 25;
+      } else if (data.yearsToTarget >= 10) {
+        ability += 20;
+      } else if (data.yearsToTarget >= 5) {
+        ability += 12;
+      } else {
+        ability += 5;
+      }
+
+      const cashCoverage =
+        data.essentialCashFlow > 0
+          ? data.assets.cash /
+            data.essentialCashFlow
+          : 36;
+
+      if (cashCoverage >= 12) {
+        ability += 20;
+      } else if (cashCoverage >= 6) {
+        ability += 15;
+      } else if (cashCoverage >= 3) {
+        ability += 8;
+      } else {
+        ability += 2;
+      }
+
+      ability += [0, 4, 8, 12, 15][
+        clamp(
+          Math.round(data.incomeStability),
+          0,
+          4
+        )
+      ];
+
+      const debtRatio =
+        data.currentMonthlyIncome > 0
+          ? data.monthlyDebt /
+            data.currentMonthlyIncome
+          : 1;
+
+      if (debtRatio <= .1) {
+        ability += 15;
+      } else if (debtRatio <= .25) {
+        ability += 10;
+      } else if (debtRatio <= .4) {
+        ability += 5;
+      } else {
+        ability += 1;
+      }
+
+      ability += [0, 4, 10, 15][
+        clamp(
+          Math.round(data.goalFlexibility),
+          0,
+          3
+        )
+      ];
+
+      if (data.dependents <= 1) {
+        ability += 10;
+      } else if (data.dependents <= 3) {
+        ability += 7;
+      } else if (data.dependents <= 5) {
+        ability += 4;
+      } else {
+        ability += 1;
+      }
+
+      const average =
+        (
+          data.riskReaction +
+          data.riskLoss +
+          data.riskChoice
+        ) / 3;
+
+      const willingness = clamp(
+        Math.round(
+          (average - 1) / 4 * 100
+        ),
+        0,
+        100
+      );
+
+      ability = clamp(
+        Math.round(ability),
+        0,
+        100
+      );
+
+      return {
+        ability,
+        willingness,
+        finalScore: Math.min(
+          ability,
+          willingness
+        ),
+        cashCoverage,
+        debtRatio
+      };
+    }
+
+    function riskLevel(score) {
+      if (score < 35) {
+        return "较低";
+      }
+
+      if (score < 65) {
+        return "中等";
+      }
+
+      return "较高";
+    }
+
+    function allocationAssessment(data, risk) {
+      const assets = data.retirementAssets;
+      const total = assets.total;
+
+      const ratioOf = value =>
+        total > 0 ? value / total : 0;
+
+      const growthRatio =
+        ratioOf(assets.growth);
+
+      const categories = [
+        {
+          name: "现金",
+          ratio: ratioOf(assets.cash)
+        },
+        {
+          name: "低波动",
+          ratio: ratioOf(assets.stable)
+        },
+        {
+          name: "高波动",
+          ratio: ratioOf(assets.growth)
+        },
+        {
+          name: "其他",
+          ratio: ratioOf(assets.other)
+        }
+      ];
+
+      if (total <= 0) {
+        return {
+          status: "暂无可检测资产",
+          message:
+            "家庭金融资产已全部用于应急、近期支出、专项预留或负债。",
+          categories
+        };
+      }
+
+      let min;
+      let max;
+
+      if (risk.finalScore < 35) {
+        min = 0;
+        max = .25;
+      } else if (risk.finalScore < 65) {
+        min = .20;
+        max = .50;
+      } else {
+        min = .40;
+        max = .70;
+      }
+
+      let status;
+      let message;
+
+      if (growthRatio < min) {
+        status = "相对偏保守";
+
+        message =
+          `家庭风险边界为${riskLevel(risk.finalScore)}，` +
+          `高波动资产占${formatPercent(growthRatio)}，` +
+          `低于工具参考区间${formatPercent(min)}—${formatPercent(max)}。`;
+      } else if (growthRatio > max) {
+        status = "可能超过风险边界";
+
+        message =
+          `家庭风险边界为${riskLevel(risk.finalScore)}，` +
+          `高波动资产占${formatPercent(growthRatio)}，` +
+          `高于工具参考区间${formatPercent(min)}—${formatPercent(max)}。`;
+      } else {
+        status = "大体匹配";
+
+        message =
+          `家庭风险边界为${riskLevel(risk.finalScore)}，` +
+          `高波动资产占${formatPercent(growthRatio)}，` +
+          `位于工具参考区间${formatPercent(min)}—${formatPercent(max)}。`;
+      }
+
+      return {
+        status,
+        message,
+        categories
+      };
+    }
+
+    function statusFor(path) {
+      if (path.coverage >= 1) {
+        return {
+          text: "达到基准",
+          className: "",
+          headline:
+            "按照家庭目前的资产与现金流计划，预计可以覆盖退休资金目标。"
+        };
+      }
+
+      if (path.coverage >= .8) {
+        return {
+          text: "需要补充",
+          className: "mid",
+          headline:
+            "家庭退休目标已接近达成，但仍需要补充部分资金。"
+        };
+      }
+
+      return {
+        text: "存在缺口",
+        className: "bad",
+        headline:
+          "按照家庭目前的资产与现金流计划，退休资金仍存在明显缺口。"
+      };
+    }
+
+    function renderTimeline(data, path) {
+      const familyRetireText =
+        data.hasPartner
+          ? `距今约${data.yearsToTarget.toFixed(1)}年`
+          : `距今约${data.yearsToTarget.toFixed(1)}年`;
+
+      document.getElementById(
+        "familyTimeline"
+      ).innerHTML = `
+        <div class="flow-row">
+          <span>本人计划退休</span>
+          <strong>
+            ${data.personARetireAge}岁，
+            距今${(data.personARetireMonth / 12).toFixed(1)}年
+          </strong>
+        </div>
+
+        ${
+          data.hasPartner
+            ? `
+              <div class="flow-row">
+                <span>配偶计划退休</span>
+                <strong>
+                  ${data.personBRetireAge}岁，
+                  距今${(data.personBRetireMonth / 12).toFixed(1)}年
+                </strong>
+              </div>
+            `
+            : ""
+        }
+
+        <div class="flow-row">
+          <span>家庭完全退休时间</span>
+          <strong>${familyRetireText}</strong>
+        </div>
+
+        <div class="flow-row">
+          <span>家庭长期生活资金</span>
+          <strong>${formatWan(data.lifestyleTarget)}</strong>
+        </div>
+
+        <div class="flow-row">
+          <span>稳定收入等待期预留</span>
+          <strong>${formatWan(path.transition.pensionBridgeReserve)}</strong>
+        </div>
+
+        <div class="flow-row">
+          <span>退休后贷款预留</span>
+          <strong>${formatWan(path.transition.debtReserve)}</strong>
+        </div>
+
+        <div class="flow-row total">
+          <span>家庭完整退休资金目标</span>
+          <strong>${formatWan(path.completeTarget)}</strong>
+        </div>
+      `;
+    }
+
+    function renderCapital(data) {
+      const rows = [
+        ["家庭金融资产总额", data.totalAssets, ""],
+        [
+          `家庭应急资金（${data.emergencyMonths}个月）`,
+          -data.emergencyNeed,
+          "minus"
+        ],
+        ["3年内确定性支出", -data.shortReserveYuan, "minus"],
+        ["已预留子女教育资金", -data.educationReserveYuan, "minus"],
+        ["已预留父母养老医疗资金", -data.elderReserveYuan, "minus"],
+        ["已预留其他目标资金", -data.otherReserveYuan, "minus"],
+        ["近期偿还高成本负债", -data.shortDebtYuan, "minus"]
+      ];
+
+      const html = rows.map(row => `
+        <div class="flow-row ${row[2]}">
+          <span>${row[0]}</span>
+          <strong>
+            ${row[1] < 0 ? "− " : ""}
+            ${formatWan(Math.abs(row[1]))}
+          </strong>
+        </div>
+      `).join("");
+
+      const unfunded =
+        data.retirementAssets.unfundedExcluded > 0
+          ? `
+            <div class="flow-row minus">
+              <span>尚未被现有资产覆盖的预留需求</span>
+              <strong>
+                ${formatWan(data.retirementAssets.unfundedExcluded)}
+              </strong>
+            </div>
+          `
+          : "";
+
+      document.getElementById(
+        "capitalFlow"
+      ).innerHTML =
+        html +
+        `
+          <div class="flow-row total">
+            <span>当前纳入家庭退休测算的资产</span>
+            <strong>${formatWan(data.usableCapital)}</strong>
+          </div>
+        ` +
+        unfunded;
+    }
+
+    function renderAssumptions(data, path) {
+      document.getElementById(
+        "weightedNominal"
+      ).textContent = formatPercent(path.nominal);
+
+      let cashFlowText = "";
+
+      if (path.simulation.constrainedMonths > 0) {
+        cashFlowText =
+          `测算中有${path.simulation.constrainedMonths}个月，` +
+          "家庭阶段性结余不足以维持全部计划投入。";
+      } else {
+        cashFlowText =
+          "按当前输入，退休前各阶段现金流可以维持计划投入。";
+      }
+
+      if (path.simulation.cashFlowWithdrawal > 0) {
+        cashFlowText +=
+          ` 其中阶段性现金流不足累计消耗退休资产约` +
+          `${formatWan(path.simulation.cashFlowWithdrawal)}。`;
+      }
+
+      document.getElementById(
+        "assumptionText"
+      ).textContent =
+        `当前纳入家庭退休测算的资产为${formatWan(data.usableCapital)}。` +
+        `加权名义收益假设为${formatPercent(path.nominal)}，` +
+        `扣除${formatPercent(data.annualFeeRate)}费用后为` +
+        `${formatPercent(path.netNominal)}，` +
+        `再考虑${formatPercent(data.inflationRate)}通胀后，` +
+        `实际收益假设约为${formatPercent(path.real)}。` +
+        cashFlowText;
+    }
+
+    function renderAllocation(assessment) {
+      document.getElementById(
+        "allocationStatus"
+      ).textContent = assessment.status;
+
+      document.getElementById(
+        "allocationMessage"
+      ).textContent = assessment.message;
+
+      document.getElementById(
+        "allocationBars"
+      ).innerHTML = assessment.categories.map(
+        item => `
+          <div class="bar-line">
+            <span>${item.name}</span>
+
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                style="width:${clamp(item.ratio * 100, 0, 100)}%"
+              ></div>
+            </div>
+
+            <strong>${formatPercent(item.ratio)}</strong>
+          </div>
+        `
+      ).join("");
+    }
+
+    function suggestion(title, text, type = "good") {
+      const label =
+        type === "good"
+          ? "结构正常"
+          : type === "mid"
+            ? "需要关注"
+            : "优先处理";
+
+      return `
+        <div class="suggestion">
+          <div class="suggestion-title">
+            <span>${title}</span>
+            <span class="tag ${type}">${label}</span>
+          </div>
+
+          <div class="suggestion-text">${text}</div>
+        </div>
+      `;
+    }
+
+    function renderSuggestions(data, path, allocation) {
+      const items = [];
+
+      if (
+        data.retirementAssets.unfundedExcluded > 0
+      ) {
+        items.push(
+          suggestion(
+            "家庭预留资金尚未全部覆盖",
+            `仍有${formatWan(data.retirementAssets.unfundedExcluded)}` +
+            "的应急、近期或专项资金需求没有被现有资产覆盖。",
+            "bad"
+          )
+        );
+      }
+
+      if (
+        path.simulation.constrainedMonths > 0
+      ) {
+        items.push(
+          suggestion(
+            "一方退休后可能无法维持当前月投入",
+            `逐月计算显示，退休前共有` +
+            `${path.simulation.constrainedMonths}个月的家庭现金结余` +
+            "不足以维持全部退休投入。系统已按实际可用结余计算。",
+            "mid"
+          )
+        );
+      }
+
+      if (
+        path.transition.pensionBridgeReserve > 0
+      ) {
+        items.push(
+          suggestion(
+            "需要准备稳定收入等待期资金",
+            `家庭完全退休后，夫妻养老金等稳定收入尚未全部开始，` +
+            `预计需要额外预留${formatWan(path.transition.pensionBridgeReserve)}。`,
+            "mid"
+          )
+        );
+      }
+
+      if (
+        path.transition.debtReserve > 0
+      ) {
+        items.push(
+          suggestion(
+            "家庭退休时贷款尚未还清",
+            `系统已经在退休资金目标中增加` +
+            `${formatWan(path.transition.debtReserve)}贷款预留。`,
+            "mid"
+          )
+        );
+      }
+
+      if (allocation.status === "可能超过风险边界") {
+        items.push(
+          suggestion(
+            "家庭高波动资产可能偏高",
+            "建议检查市场明显下跌时，是否会影响家庭退休时间和必要生活支出。",
+            "bad"
+          )
+        );
+      } else if (allocation.status === "相对偏保守") {
+        items.push(
+          suggestion(
+            "家庭资产配置相对偏保守",
+            "如果退休计划存在缺口，应先比较增加储蓄、调整支出或延后退休，" +
+            "不建议只为提高测算收益而增加风险。",
+            "mid"
+          )
+        );
+      } else {
+        items.push(
+          suggestion(
+            "家庭资产结构与风险边界大体匹配",
+            "仍需确保应急资金、短期资金和退休资金分开管理。",
+            "good"
+          )
+        );
+      }
+
+      if (
+        Number.isFinite(path.additionalMonthlySaving) &&
+        path.additionalMonthlySaving > 0
+      ) {
+        const currentCapacity = Math.max(
+          0,
+          data.remainingMonthlyCapacity
+        );
+
+        if (
+          path.additionalMonthlySaving >
+          currentCapacity
+        ) {
+          items.push(
+            suggestion(
+              "额外补充金额超过家庭当前剩余结余",
+              `测算需要每月额外补充` +
+              `${formatYuan(path.additionalMonthlySaving)}，` +
+              `但当前计划投入后剩余结余约为` +
+              `${formatYuan(currentCapacity)}。` +
+              "建议同时调整退休时间、退休支出或其他目标。",
+              "bad"
+            )
+          );
+        } else {
+          items.push(
+            suggestion(
+              "家庭退休计划需要增加投入",
+              `建议在现有每月${formatYuan(data.plannedSaving)}` +
+              `基础上额外补充${formatYuan(path.additionalMonthlySaving)}。`,
+              "mid"
+            )
+          );
+        }
+      } else {
+        items.push(
+          suggestion(
+            "家庭当前计划达到测算基准",
+            "按照当前家庭资产、夫妻收入时间线和储蓄计划，" +
+            "目前不需要额外增加每月投入。",
+            "good"
+          )
+        );
+      }
+
+      document.getElementById(
+        "suggestions"
+      ).innerHTML = items.join("");
+    }
+
+    function renderSavingCompare(data, path) {
+      const element =
+        document.getElementById("savingCompare");
+
+      if (path.gap >= 0) {
+        element.innerHTML =
+          `家庭目前每月计划投入` +
+          `<strong>${formatYuan(data.plannedSaving)}</strong>。` +
+          `考虑夫妻退休时间、稳定收入开始时间和贷款后，` +
+          `预计退休资金超过目标约` +
+          `<strong>${formatWan(path.gap)}</strong>，` +
+          `目前无需额外增加投入。`;
+
+        return;
+      }
+
+      if (
+        !Number.isFinite(
+          path.additionalMonthlySaving
+        )
+      ) {
+        element.innerHTML =
+          "当前退休期限过短，无法计算常规的每月补充金额。";
+
+        return;
+      }
+
+      const combined =
+        data.plannedSaving +
+        path.additionalMonthlySaving;
+
+      element.innerHTML =
+        `家庭目前每月计划投入` +
+        `<strong>${formatYuan(data.plannedSaving)}</strong>。` +
+        `当前计划预计仍有` +
+        `<strong>${formatWan(Math.abs(path.gap))}</strong>缺口；` +
+        `建议家庭每月额外补充` +
+        `<strong>${formatYuan(path.additionalMonthlySaving)}</strong>，` +
+        `合计每月投入约` +
+        `<strong>${formatYuan(combined)}</strong>。`;
+    }
+
+    function calculate() {
+      const data = getData();
+      const errors = validate(data);
+      const errorBox =
+        document.getElementById("errorBox");
+
+      if (errors.length) {
+        errorBox.style.display = "block";
+        errorBox.innerHTML =
+          "<strong>请检查：</strong><br>" +
+          errors.map(
+            item => `• ${item}`
+          ).join("<br>");
+
+        return;
+      }
+
+      errorBox.style.display = "none";
+
+      const path = calculatePath(data);
+      const risk = calculateRisk(data);
+
+      const allocation =
+        allocationAssessment(
+          data,
+          risk
+        );
+
+      const status = statusFor(path);
+
+      document.getElementById(
+        "headline"
+      ).textContent = status.headline;
+
+      const badge =
+        document.getElementById("statusBadge");
+
+      badge.textContent = status.text;
+      badge.className =
+        `badge ${status.className}`;
+
+      document.getElementById(
+        "targetMonthlySpend"
+      ).textContent = formatYuan(
+        data.retirementMonthlySpending
+      );
+
+      document.getElementById(
+        "stableMonthlyIncome"
+      ).textContent = formatYuan(
+        data.longTermStableMonthlyIncome
+      );
+
+      document.getElementById(
+        "portfolioMonthlyNeed"
+      ).textContent = formatYuan(
+        data.longTermMonthlyGap
+      );
+
+      document.getElementById(
+        "completeTarget"
+      ).textContent = formatWan(
+        path.completeTarget
+      );
+
+      document.getElementById(
+        "projectedCapital"
+      ).textContent = formatWan(
+        path.projected
+      );
+
+      document.getElementById(
+        "additionalMonthlySaving"
+      ).textContent = formatYuan(
+        path.additionalMonthlySaving
+      );
+
+      renderSavingCompare(data, path);
+      renderTimeline(data, path);
+      renderCapital(data);
+      renderAssumptions(data, path);
+      renderAllocation(allocation);
+      renderSuggestions(
+        data,
+        path,
+        allocation
+      );
+
+      const durationNotice =
+        document.getElementById(
+          "durationNotice"
+        );
+
+      if (data.retirementYears > 30) {
+        durationNotice.innerHTML =
+          `<strong>期限提示：</strong>` +
+          `从家庭完全退休到测算终点约` +
+          `${data.retirementYears.toFixed(1)}年，` +
+          "超过30年。4%只能作为初步规划基准，" +
+          "建议进一步评估更低提取率和退休初期市场风险。";
+      } else {
+        durationNotice.innerHTML =
+          `<strong>期限提示：</strong>` +
+          `从家庭完全退休到测算终点约` +
+          `${data.retirementYears.toFixed(1)}年。` +
+          "4%为快速规划基准，不代表资金一定不会耗尽。";
+      }
+
+      if (window.innerWidth < 981) {
+        document.getElementById(
+          "results"
+        ).scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    }
+
+    function updateLiveCashFlow() {
+      const hasPartner =
+        valueOf("householdType") ===
+        "couple";
+
+      const income =
+        n("personAIncome") +
+        (
+          hasPartner
+            ? n("personBIncome")
+            : 0
+        );
+
+      const expenses =
+        n("essentialExpense") +
+        n("optionalExpense") +
+        n("monthlyDebt");
+
+      const surplus =
+        income -
+        expenses;
+
+      const remaining =
+        surplus -
+        n("plannedSaving");
+
+      const rate =
+        income > 0
+          ? surplus / income
+          : 0;
+
+      document.getElementById(
+        "liveIncome"
+      ).textContent = formatYuan(income);
+
+      document.getElementById(
+        "liveSurplus"
+      ).textContent =
+        formatSignedYuan(surplus);
+
+      document.getElementById(
+        "liveRate"
+      ).textContent =
+        formatPercent(rate);
+
+      document.getElementById(
+        "liveRemaining"
+      ).textContent =
+        formatSignedYuan(remaining);
+    }
+
+    function togglePartner() {
+      const hasPartner =
+        valueOf("householdType") ===
+        "couple";
+
+      document.getElementById(
+        "partnerCard"
+      ).classList.toggle(
+        "partner-hidden",
+        !hasPartner
+      );
+
+      updateLiveCashFlow();
+    }
+
+    function restoreSample() {
+      Object.entries(SAMPLE).forEach(
+        ([id, value]) => {
+          const element =
+            document.getElementById(id);
+
+          if (element) {
+            element.value = value;
+          }
+        }
+      );
+
+      togglePartner();
+      updateLiveCashFlow();
+      calculate();
+    }
+
+    function clearInputs() {
+      Object.keys(SAMPLE).forEach(id => {
+        const element =
+          document.getElementById(id);
+
+        if (!element) {
+          return;
+        }
+
+        if (element.tagName === "SELECT") {
+          element.selectedIndex = 0;
+        } else {
+          element.value = "";
+        }
+      });
+
+      togglePartner();
+      updateLiveCashFlow();
+
+      document.getElementById(
+        "errorBox"
+      ).style.display = "none";
+    }
+
+    document.getElementById(
+      "calculateBtn"
+    ).addEventListener(
+      "click",
+      calculate
+    );
+
+    document.getElementById(
+      "sampleBtn"
+    ).addEventListener(
+      "click",
+      restoreSample
+    );
+
+    document.getElementById(
+      "clearBtn"
+    ).addEventListener(
+      "click",
+      () => {
+        if (
+          confirm("确定清空当前输入吗？")
+        ) {
+          clearInputs();
+        }
+      }
+    );
+
+    document.getElementById(
+      "printBtn"
+    ).addEventListener(
+      "click",
+      () => {
+        calculate();
+        window.print();
+      }
+    );
+
+    document.getElementById(
+      "householdType"
+    ).addEventListener(
+      "change",
+      togglePartner
+    );
+
+    [
+      "personAIncome",
+      "personBIncome",
+      "essentialExpense",
+      "optionalExpense",
+      "monthlyDebt",
+      "plannedSaving"
+    ].forEach(id => {
+      document.getElementById(id)
+        .addEventListener(
+          "input",
+          updateLiveCashFlow
+        );
+    });
+
+    togglePartner();
+    updateLiveCashFlow();
+    calculate();
+  </script>
+</body>
+</html>
