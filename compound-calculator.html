@@ -1384,27 +1384,22 @@
 
       <section class="result-panel">
         <h3>家庭退休时间与资金组成</h3>
-
         <p class="subtitle">
           展示家庭完全退休时间、长期生活资金和退休过渡期资金。
         </p>
-
         <div class="flow" id="familyTimeline"></div>
       </section>
 
       <section class="result-panel">
         <h3>当前纳入家庭退休测算的资产</h3>
-
         <p class="subtitle">
           排除应急资金、近期支出及已经明确预留的其他目标资金。
         </p>
-
         <div class="flow" id="capitalFlow"></div>
       </section>
 
       <section class="result-panel">
         <h3>本次家庭退休测算口径</h3>
-
         <p class="subtitle">
           收益率只用于计算当前计划，不构成收益预测。
         </p>
@@ -1414,14 +1409,12 @@
             <span>家庭退休资产加权名义收益假设</span>
             <strong class="assumption-rate" id="weightedNominal">—</strong>
           </div>
-
           <div class="assumption-text" id="assumptionText">—</div>
         </div>
       </section>
 
       <section class="result-panel">
         <h3>已有配置与风险边界检测</h3>
-
         <p class="subtitle">
           根据家庭退休资产结构、目标期限和家庭风险意愿进行初筛。
         </p>
@@ -1433,20 +1426,17 @@
           </div>
 
           <p id="allocationMessage">—</p>
-
           <div class="allocation-bars" id="allocationBars"></div>
         </div>
       </section>
 
       <section class="result-panel">
         <h3>检测建议</h3>
-
         <div class="suggestions" id="suggestions"></div>
       </section>
 
       <section class="result-panel">
         <h3>模型假设与边界</h3>
-
         <div class="notice" id="durationNotice">—</div>
 
         <br>
@@ -1660,11 +1650,7 @@
           return;
         }
 
-        const deduction = Math.min(
-          remaining[key],
-          toExclude
-        );
-
+        const deduction = Math.min(remaining[key], toExclude);
         remaining[key] -= deduction;
         toExclude -= deduction;
       });
@@ -1692,25 +1678,12 @@
       data.personAStableIncome = n("personAStableIncome");
       data.personAStableStartAge = n("personAStableStartAge");
 
-      data.personBAge = data.hasPartner
-        ? n("personBAge")
-        : 0;
-
-      data.personBRetireAge = data.hasPartner
-        ? n("personBRetireAge")
-        : 0;
-
-      data.personBIncome = data.hasPartner
-        ? n("personBIncome")
-        : 0;
-
-      data.personBStableIncome = data.hasPartner
-        ? n("personBStableIncome")
-        : 0;
-
-      data.personBStableStartAge = data.hasPartner
-        ? n("personBStableStartAge")
-        : 0;
+      data.personBAge = data.hasPartner ? n("personBAge") : 0;
+      data.personBRetireAge = data.hasPartner ? n("personBRetireAge") : 0;
+      data.personBIncome = data.hasPartner ? n("personBIncome") : 0;
+      data.personBStableIncome = data.hasPartner ? n("personBStableIncome") : 0;
+      data.personBStableStartAge =
+        data.hasPartner ? n("personBStableStartAge") : 0;
 
       data.planAge = n("planAge");
       data.dependents = n("dependents");
@@ -1784,17 +1757,11 @@
       );
 
       data.personBRetireMonth = data.hasPartner
-        ? ageToMonth(
-            data.personBAge,
-            data.personBRetireAge
-          )
+        ? ageToMonth(data.personBAge, data.personBRetireAge)
         : 0;
 
       data.personBStableStartMonth = data.hasPartner
-        ? ageToMonth(
-            data.personBAge,
-            data.personBStableStartAge
-          )
+        ? ageToMonth(data.personBAge, data.personBStableStartAge)
         : 0;
 
       data.fullRetirementMonth = data.hasPartner
@@ -1808,10 +1775,7 @@
         data.fullRetirementMonth / 12;
 
       const youngestCurrentAge = data.hasPartner
-        ? Math.min(
-            data.personAAge,
-            data.personBAge
-          )
+        ? Math.min(data.personAAge, data.personBAge)
         : data.personAAge;
 
       data.totalPlanMonths = ageToMonth(
@@ -1960,13 +1924,17 @@
         }
       }
 
-      if (data.planAge <= data.personARetireAge) {
+      if (
+        data.planAge <=
+        data.personARetireAge
+      ) {
         errors.push("家庭计划测算年龄必须大于本人退休年龄。");
       }
 
       if (
         data.hasPartner &&
-        data.planAge <= data.personBRetireAge
+        data.planAge <=
+        data.personBRetireAge
       ) {
         errors.push("家庭计划测算年龄必须大于配偶退休年龄。");
       }
@@ -1979,7 +1947,10 @@
         errors.push("家庭当前支出和贷款还款已经超过月收入。");
       }
 
-      if (data.plannedSaving > data.monthlySurplus) {
+      if (
+        data.plannedSaving >
+        data.monthlySurplus
+      ) {
         errors.push("家庭当前退休投入超过实际月结余。");
       }
 
@@ -1991,7 +1962,9 @@
         errors.push("请填写家庭当前金融资产。");
       }
 
-      if (data.retirementMonthlySpending <= 0) {
+      if (
+        data.retirementMonthlySpending <= 0
+      ) {
         errors.push("请填写家庭退休后每月支出。");
       }
 
@@ -2080,18 +2053,23 @@
       }
 
       if (
-        month >= data.personAStableStartMonth
+        month >=
+        data.personAStableStartMonth
       ) {
         income += data.personAStableIncome;
       }
 
       if (data.hasPartner) {
-        if (month < data.personBRetireMonth) {
+        if (
+          month <
+          data.personBRetireMonth
+        ) {
           income += data.personBIncome;
         }
 
         if (
-          month >= data.personBStableStartMonth
+          month >=
+          data.personBStableStartMonth
         ) {
           income += data.personBStableIncome;
         }
@@ -2240,11 +2218,16 @@
       completeTarget,
       currentProjected
     ) {
-      if (currentProjected >= completeTarget) {
+      if (
+        currentProjected >=
+        completeTarget
+      ) {
         return 0;
       }
 
-      if (data.fullRetirementMonth <= 0) {
+      if (
+        data.fullRetirementMonth <= 0
+      ) {
         return Infinity;
       }
 
@@ -2283,19 +2266,21 @@
       const monthlyRate =
         monthlyRateFromAnnual(real);
 
-      const transition = calculateTransitionReserve(
-        data,
-        monthlyRate
-      );
+      const transition =
+        calculateTransitionReserve(
+          data,
+          monthlyRate
+        );
 
       const completeTarget =
         data.lifestyleTarget +
         transition.total;
 
-      const simulation = simulateCurrentPlan(
-        data,
-        monthlyRate
-      );
+      const simulation =
+        simulateCurrentPlan(
+          data,
+          monthlyRate
+        );
 
       const projected =
         simulation.capital;
@@ -2412,7 +2397,9 @@
 
       const willingness = clamp(
         Math.round(
-          (average - 1) / 4 * 100
+          (average - 1) /
+          4 *
+          100
         ),
         0,
         100
@@ -2453,7 +2440,9 @@
       const total = assets.total;
 
       const ratioOf = value =>
-        total > 0 ? value / total : 0;
+        total > 0
+          ? value / total
+          : 0;
 
       const growthRatio =
         ratioOf(assets.growth);
@@ -2562,9 +2551,7 @@
 
     function renderTimeline(data, path) {
       const familyRetireText =
-        data.hasPartner
-          ? `距今约${data.yearsToTarget.toFixed(1)}年`
-          : `距今约${data.yearsToTarget.toFixed(1)}年`;
+        `距今约${data.yearsToTarget.toFixed(1)}年`;
 
       document.getElementById(
         "familyTimeline"
@@ -2671,11 +2658,14 @@
     function renderAssumptions(data, path) {
       document.getElementById(
         "weightedNominal"
-      ).textContent = formatPercent(path.nominal);
+      ).textContent =
+        formatPercent(path.nominal);
 
       let cashFlowText = "";
 
-      if (path.simulation.constrainedMonths > 0) {
+      if (
+        path.simulation.constrainedMonths > 0
+      ) {
         cashFlowText =
           `测算中有${path.simulation.constrainedMonths}个月，` +
           "家庭阶段性结余不足以维持全部计划投入。";
@@ -2684,7 +2674,9 @@
           "按当前输入，退休前各阶段现金流可以维持计划投入。";
       }
 
-      if (path.simulation.cashFlowWithdrawal > 0) {
+      if (
+        path.simulation.cashFlowWithdrawal > 0
+      ) {
         cashFlowText +=
           ` 其中阶段性现金流不足累计消耗退休资产约` +
           `${formatWan(path.simulation.cashFlowWithdrawal)}。`;
@@ -2705,30 +2697,33 @@
     function renderAllocation(assessment) {
       document.getElementById(
         "allocationStatus"
-      ).textContent = assessment.status;
+      ).textContent =
+        assessment.status;
 
       document.getElementById(
         "allocationMessage"
-      ).textContent = assessment.message;
+      ).textContent =
+        assessment.message;
 
       document.getElementById(
         "allocationBars"
-      ).innerHTML = assessment.categories.map(
-        item => `
-          <div class="bar-line">
-            <span>${item.name}</span>
+      ).innerHTML =
+        assessment.categories.map(
+          item => `
+            <div class="bar-line">
+              <span>${item.name}</span>
 
-            <div class="bar-track">
-              <div
-                class="bar-fill"
-                style="width:${clamp(item.ratio * 100, 0, 100)}%"
-              ></div>
+              <div class="bar-track">
+                <div
+                  class="bar-fill"
+                  style="width:${clamp(item.ratio * 100, 0, 100)}%"
+                ></div>
+              </div>
+
+              <strong>${formatPercent(item.ratio)}</strong>
             </div>
-
-            <strong>${formatPercent(item.ratio)}</strong>
-          </div>
-        `
-      ).join("");
+          `
+        ).join("");
     }
 
     function suggestion(title, text, type = "good") {
@@ -2807,7 +2802,10 @@
         );
       }
 
-      if (allocation.status === "可能超过风险边界") {
+      if (
+        allocation.status ===
+        "可能超过风险边界"
+      ) {
         items.push(
           suggestion(
             "家庭高波动资产可能偏高",
@@ -2815,12 +2813,14 @@
             "bad"
           )
         );
-      } else if (allocation.status === "相对偏保守") {
+      } else if (
+        allocation.status ===
+        "相对偏保守"
+      ) {
         items.push(
           suggestion(
             "家庭资产配置相对偏保守",
-            "如果退休计划存在缺口，应先比较增加储蓄、调整支出或延后退休，" +
-            "不建议只为提高测算收益而增加风险。",
+            "如果退休计划存在缺口，应先比较增加储蓄、调整支出或延后退休，不建议只为提高测算收益而增加风险。",
             "mid"
           )
         );
@@ -2872,8 +2872,7 @@
         items.push(
           suggestion(
             "家庭当前计划达到测算基准",
-            "按照当前家庭资产、夫妻收入时间线和储蓄计划，" +
-            "目前不需要额外增加每月投入。",
+            "按照当前家庭资产、夫妻收入时间线和储蓄计划，目前不需要额外增加每月投入。",
             "good"
           )
         );
@@ -2881,7 +2880,8 @@
 
       document.getElementById(
         "suggestions"
-      ).innerHTML = items.join("");
+      ).innerHTML =
+        items.join("");
     }
 
     function renderSavingCompare(data, path) {
@@ -2929,6 +2929,7 @@
     function calculate() {
       const data = getData();
       const errors = validate(data);
+
       const errorBox =
         document.getElementById("errorBox");
 
@@ -2940,9 +2941,10 @@
             item => `• ${item}`
           ).join("<br>");
 
-        return;
+        return false;
       }
 
+      errorBox.innerHTML = "";
       errorBox.style.display = "none";
 
       const path = calculatePath(data);
@@ -2954,54 +2956,64 @@
           risk
         );
 
-      const status = statusFor(path);
+      const status =
+        statusFor(path);
 
       document.getElementById(
         "headline"
-      ).textContent = status.headline;
+      ).textContent =
+        status.headline;
 
       const badge =
         document.getElementById("statusBadge");
 
-      badge.textContent = status.text;
+      badge.textContent =
+        status.text;
+
       badge.className =
         `badge ${status.className}`;
 
       document.getElementById(
         "targetMonthlySpend"
-      ).textContent = formatYuan(
-        data.retirementMonthlySpending
-      );
+      ).textContent =
+        formatYuan(
+          data.retirementMonthlySpending
+        );
 
       document.getElementById(
         "stableMonthlyIncome"
-      ).textContent = formatYuan(
-        data.longTermStableMonthlyIncome
-      );
+      ).textContent =
+        formatYuan(
+          data.longTermStableMonthlyIncome
+        );
 
       document.getElementById(
         "portfolioMonthlyNeed"
-      ).textContent = formatYuan(
-        data.longTermMonthlyGap
-      );
+      ).textContent =
+        formatYuan(
+          data.longTermMonthlyGap
+        );
 
       document.getElementById(
         "completeTarget"
-      ).textContent = formatWan(
-        path.completeTarget
-      );
+      ).textContent =
+        formatWan(
+          path.completeTarget
+        );
 
       document.getElementById(
         "projectedCapital"
-      ).textContent = formatWan(
-        path.projected
-      );
+      ).textContent =
+        formatWan(
+          path.projected
+        );
 
       document.getElementById(
         "additionalMonthlySaving"
-      ).textContent = formatYuan(
-        path.additionalMonthlySaving
-      );
+      ).textContent =
+        formatYuan(
+          path.additionalMonthlySaving
+        );
 
       renderSavingCompare(data, path);
       renderTimeline(data, path);
@@ -3042,6 +3054,8 @@
           block: "start"
         });
       }
+
+      return true;
     }
 
     function updateLiveCashFlow() {
@@ -3077,7 +3091,8 @@
 
       document.getElementById(
         "liveIncome"
-      ).textContent = formatYuan(income);
+      ).textContent =
+        formatYuan(income);
 
       document.getElementById(
         "liveSurplus"
@@ -3127,6 +3142,174 @@
       calculate();
     }
 
+    function resetResults() {
+      const setText = (
+        id,
+        text = "—"
+      ) => {
+        const element =
+          document.getElementById(id);
+
+        if (element) {
+          element.textContent = text;
+        }
+      };
+
+      setText(
+        "headline",
+        "请填写家庭数据并生成测算结果"
+      );
+
+      const badge =
+        document.getElementById(
+          "statusBadge"
+        );
+
+      badge.textContent = "待测算";
+      badge.className = "badge";
+
+      [
+        "targetMonthlySpend",
+        "stableMonthlyIncome",
+        "portfolioMonthlyNeed",
+        "completeTarget",
+        "projectedCapital",
+        "additionalMonthlySaving",
+        "weightedNominal"
+      ].forEach(id => {
+        setText(id);
+      });
+
+      setText(
+        "savingCompare",
+        "填写完整数据后，将显示家庭退休资金测算结果。"
+      );
+
+      document.getElementById(
+        "familyTimeline"
+      ).innerHTML = `
+        <div class="flow-row">
+          <span>本人计划退休</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row">
+          <span>配偶计划退休</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row">
+          <span>家庭完全退休时间</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row">
+          <span>家庭长期生活资金</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row">
+          <span>稳定收入等待期预留</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row">
+          <span>退休后贷款预留</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row total">
+          <span>家庭完整退休资金目标</span>
+          <strong>—</strong>
+        </div>
+      `;
+
+      document.getElementById(
+        "capitalFlow"
+      ).innerHTML = `
+        <div class="flow-row">
+          <span>家庭金融资产总额</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row minus">
+          <span>家庭应急资金</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row minus">
+          <span>3年内确定性支出</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row minus">
+          <span>已预留子女教育资金</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row minus">
+          <span>已预留父母养老医疗资金</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row minus">
+          <span>已预留其他目标资金</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row minus">
+          <span>近期偿还高成本负债</span>
+          <strong>—</strong>
+        </div>
+
+        <div class="flow-row total">
+          <span>当前纳入家庭退休测算的资产</span>
+          <strong>—</strong>
+        </div>
+      `;
+
+      setText(
+        "assumptionText",
+        "填写完整数据后，将根据家庭退休资产结构计算收益假设。"
+      );
+
+      setText(
+        "allocationStatus",
+        "待检测"
+      );
+
+      setText(
+        "allocationMessage",
+        "填写完整数据后，将检测家庭资产配置与风险边界。"
+      );
+
+      document.getElementById(
+        "allocationBars"
+      ).innerHTML = "";
+
+      document.getElementById(
+        "suggestions"
+      ).innerHTML = `
+        <div class="suggestion">
+          <div class="suggestion-title">
+            <span>等待生成检测结果</span>
+            <span class="tag good">待测算</span>
+          </div>
+
+          <div class="suggestion-text">
+            请在左侧填写新的家庭数据，然后点击
+            “生成家庭退休体检结果”。
+          </div>
+        </div>
+      `;
+
+      document.getElementById(
+        "durationNotice"
+      ).innerHTML =
+        "<strong>期限提示：</strong>" +
+        "填写完整数据后，将显示家庭退休期限及模型边界。";
+    }
+
     function clearInputs() {
       Object.keys(SAMPLE).forEach(id => {
         const element =
@@ -3143,12 +3326,27 @@
         }
       });
 
+      document.getElementById(
+        "householdType"
+      ).value = "couple";
+
       togglePartner();
       updateLiveCashFlow();
 
-      document.getElementById(
-        "errorBox"
-      ).style.display = "none";
+      const errorBox =
+        document.getElementById(
+          "errorBox"
+        );
+
+      errorBox.innerHTML = "";
+      errorBox.style.display = "none";
+
+      resetResults();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
     }
 
     document.getElementById(
@@ -3171,7 +3369,9 @@
       "click",
       () => {
         if (
-          confirm("确定清空当前输入吗？")
+          confirm(
+            "确定清空当前输入和测算结果吗？"
+          )
         ) {
           clearInputs();
         }
@@ -3183,8 +3383,14 @@
     ).addEventListener(
       "click",
       () => {
-        calculate();
-        window.print();
+        const success =
+          calculate();
+
+        if (success) {
+          setTimeout(() => {
+            window.print();
+          }, 100);
+        }
       }
     );
 
